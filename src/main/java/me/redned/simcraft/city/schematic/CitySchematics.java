@@ -1,6 +1,7 @@
 package me.redned.simcraft.city.schematic;
 
 import me.redned.simcraft.schematic.Schematic;
+import me.redned.simcraft.util.FileUtil;
 import org.cloudburstmc.nbt.NBTInputStream;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtUtils;
@@ -8,8 +9,6 @@ import org.cloudburstmc.nbt.NbtUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,9 +26,13 @@ public class CitySchematics {
     private static void load() {
         try {
             URI uri = CitySchematics.class.getResource("/schematics").toURI();
-            try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Map.of("create", "true"))) {
-                loadSchematicsFromPath(Paths.get(uri));
-            }
+            FileUtil.forPathWithUri(uri, path -> {
+                try {
+                    loadSchematicsFromPath(path);
+                } catch (IOException ex) {
+                    throw new RuntimeException("Failed to load schematics!", ex);
+                }
+            });
 
             Path extPath = Paths.get("schematics");
             if (Files.exists(extPath)) {

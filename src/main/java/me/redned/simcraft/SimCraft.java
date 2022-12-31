@@ -70,10 +70,13 @@ public class SimCraft {
             Files.createDirectories(scDatapackPath);
 
             URI uri = this.getClass().getResource("/packs/datapack/").toURI();
-            String[] split = uri.toString().split("!");
-            try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create(split[0]), Map.of("create", "true"))) {
-                FileUtil.copyRecursively(fileSystem.getPath(split[1]), scDatapackPath);
-            }
+            FileUtil.forPathWithUri(uri, path -> {
+                try {
+                    FileUtil.copyRecursively(path, scDatapackPath);
+                } catch (IOException ex) {
+                    throw new RuntimeException("Failed to copy file with path " + path, ex);
+                }
+            });
         } catch (URISyntaxException ex) {
             throw new RuntimeException("Failed to load datapacks!", ex);
         }
