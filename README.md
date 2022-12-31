@@ -22,7 +22,7 @@ At the moment, this can only be run through the command line. However, a GUI is 
 
 Additionally, you must also have SimCity 4 installed for this to work, as this program needs to access various game files.
 
-1. Download the jar from the latest release.
+1. Download the jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
 2. Create a new directory and place the jar in it.
 3. Open up your command line and insert the following code:
     ```shell
