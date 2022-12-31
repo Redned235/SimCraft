@@ -5,21 +5,23 @@ on:
       - "master"
 jobs:
   build:
-    name: Snapshot
+    name: Snapshot Build
     runs-on: ubuntu-latest
     container:
       image: gradle:7-jdk17
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adopt'
           cache: 'gradle'
-      - name: Gradle build
+      - name: Gradle Build
         run: gradle build --parallel
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Auto Release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
