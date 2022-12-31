@@ -4,6 +4,8 @@ A program to convert SimCity 4 (Deluxe) cities into Minecraft worlds.
 
 **This is still very much a heavy work in progress and cities are unlikely to be translated perfectly.** 
 
+![image](https://user-images.githubusercontent.com/29153871/210121631-b42eee46-473c-4ff7-864c-3207989d9703.png)
+
 ## What Currently Works
 - Terrain conversion
 - Agriculture plots
@@ -27,6 +29,9 @@ Additionally, you must also have SimCity 4 installed for this to work, as this p
     java -jar SimCraft.jar -c <city directory> -g <game directory> -o <output>
     ```
 4. Once everything has completed, place the output directory inside your Minecraft `saves` file, and teleport to the coordinates the city was pasted at (it will print this in the console).
+
+## Contributing
+See the [Contributing](https://github.com/Redned235/SimCraft/blob/master/CONTRIBUTING.md) file for more information.
 
 ## Libraries Used
 - [SimReader](https://github.com/Redned235/SimReader)
