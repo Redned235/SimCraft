@@ -46,4 +46,4 @@ Much of this project would not be possible without the following resources & rep
 - [SC4Mapper](https://github.com/wouanagaine/SC4Mapper-2013/)
 - [SC4Parser](https://github.com/Killeroo/SC4Parser)
 
-Also big thanks to [mine-city-2000](https://github.com/jgosar/mine-city-2000/tree/master/MineCity2000) for the original inspiration for this project!
+Also big thanks to [mine-city-2000](https://github.com/jgosar/mine-city-2000/) for the original inspiration for this project!
