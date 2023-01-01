@@ -10,14 +10,13 @@ import me.redned.simcraft.city.world.network.piece.NetworkPiece;
 import me.redned.simcraft.city.world.network.piece.RoadNetworkPiece;
 import me.redned.simcraft.city.world.network.piece.StreetNetworkPiece;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
+import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import me.redned.simreader.sc4.type.NetworkType;
-import org.cloudburstmc.math.vector.Vector2i;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class CityNetworkBuilder {
 
     private final List<NetworkData> networks;
 
-    private final Map<Vector2i, NetworkData> groundLevelNetwork = new HashMap<>();
+    private final TwoDimensionalPositionMap<NetworkData> groundLevelNetwork = new TwoDimensionalPositionMap<>();
 
     public CityNetworkBuilder(CityRegion region, CityTerrainGenerator terrainGenerator) {
         this.region = region;
@@ -48,7 +47,7 @@ public class CityNetworkBuilder {
         // Build our ground level network
         for (NetworkTile1Data tile : this.region.getCity().getNetworkTile1s()) {
             Vector3i pos = tile.getMinPosition().toInt();
-            this.groundLevelNetwork.put(Vector2i.from(pos.getX() >> 4, pos.getZ() >> 4), tile);
+            this.groundLevelNetwork.put(pos.getX() >> 4, pos.getZ() >> 4, tile);
         }
     }
 
@@ -79,6 +78,6 @@ public class CityNetworkBuilder {
     }
 
     public NetworkData getGroundNetwork(int tileX, int tileZ) {
-        return this.groundLevelNetwork.get(Vector2i.from(tileX, tileZ));
+        return this.groundLevelNetwork.get(tileX, tileZ);
     }
 }

@@ -15,6 +15,8 @@ public class FloraData implements PlaceableData {
     private final Flora flora;
     private final String identifier;
 
+    private final Vector3f position;
+
     public FloraData(Flora flora, ExemplarFile exemplar) {
         this.flora = flora;
 
@@ -29,10 +31,8 @@ public class FloraData implements PlaceableData {
         }
 
         this.identifier = property.getValue();
-    }
 
-    public Vector3f getPosition() {
-        return Vector3f.from(
+        this.position = Vector3f.from(
                 this.flora.getCoordinateX(),
                 this.flora.getCoordinateY(),
                 this.flora.getCoordinateZ()

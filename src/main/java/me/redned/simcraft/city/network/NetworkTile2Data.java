@@ -1,7 +1,6 @@
 package me.redned.simcraft.city.network;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import me.redned.simreader.sc4.type.NetworkTile2;
 import me.redned.simreader.sc4.type.NetworkType;
@@ -9,39 +8,38 @@ import org.cloudburstmc.math.vector.Vector3f;
 
 @ToString
 @Getter
-@RequiredArgsConstructor
 public class NetworkTile2Data implements NetworkData {
     private final NetworkTile2 networkTile;
 
-    @Override
-    public NetworkType getNetworkType() {
-        return this.networkTile.getNetworkType();
-    }
+    private final Vector3f minPosition;
+    private final Vector3f maxPosition;
+    private final Vector3f position;
 
-    @Override
-    public Vector3f getMinPosition() {
-        return Vector3f.from(
+    public NetworkTile2Data(NetworkTile2 networkTile) {
+        this.networkTile = networkTile;
+
+        this.minPosition = Vector3f.from(
                 this.networkTile.getMinCoordinateX(),
                 this.networkTile.getMinCoordinateY(),
                 this.networkTile.getMinCoordinateZ()
         );
-    }
 
-    @Override
-    public Vector3f getMaxPosition() {
-        return Vector3f.from(
+        this.maxPosition = Vector3f.from(
                 this.networkTile.getMaxCoordinateX(),
                 this.networkTile.getMaxCoordinateY(),
                 this.networkTile.getMaxCoordinateZ()
         );
-    }
 
-    public Vector3f getPosition() {
-        return Vector3f.from(
+        this.position = Vector3f.from(
                 this.networkTile.getCoordinateX(),
                 this.networkTile.getCoordinateY(),
                 this.networkTile.getCoordinateZ()
         );
+    }
+
+    @Override
+    public NetworkType getNetworkType() {
+        return this.networkTile.getNetworkType();
     }
 
     @Override

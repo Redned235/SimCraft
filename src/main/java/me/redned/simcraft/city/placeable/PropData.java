@@ -17,6 +17,9 @@ public class PropData implements PlaceableData {
     private final Prop prop;
     private final String identifier;
 
+    private final Vector3f minPosition;
+    private final Vector3f maxPosition;
+
     public PropData(Prop prop, ExemplarFile exemplar) {
         this.prop = prop;
 
@@ -31,20 +34,14 @@ public class PropData implements PlaceableData {
         }
 
         this.identifier = property.getValue();
-    }
 
-    @Override
-    public Vector3f getMinPosition() {
-        return Vector3f.from(
+        this.minPosition = Vector3f.from(
                 this.prop.getMinCoordinateX(),
                 this.prop.getMinCoordinateY(),
                 this.prop.getMinCoordinateZ()
         );
-    }
 
-    @Override
-    public Vector3f getMaxPosition() {
-        return Vector3f.from(
+        this.maxPosition = Vector3f.from(
                 this.prop.getMaxCoordinateX(),
                 this.prop.getMaxCoordinateY(),
                 this.prop.getMaxCoordinateZ()

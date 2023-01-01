@@ -30,6 +30,9 @@ dependencies {
     implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
     implementation("org.cloudburstmc.math:immutable:2.0")
 
+    val fastutilVersion = "8.5.3"
+    implementation("com.nukkitx.fastutil:fastutil-long-object-maps:$fastutilVersion")
+
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 }

@@ -7,6 +7,7 @@ import me.redned.levelparser.Chunk;
 import me.redned.levelparser.Level;
 import me.redned.simcraft.util.BlockRotationUtil;
 import me.redned.simcraft.util.MathUtil;
+import me.redned.simcraft.util.collection.ThreeDimensionalPositionMap;
 import org.cloudburstmc.math.vector.Vector3d;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
@@ -29,9 +30,11 @@ public class Schematic {
     private final int width;
     private final int height;
     private final int length;
-    private final Map<Vector3i, BlockState> blocks;
-    private final Map<Vector3i, NbtMap> blockEntities;
+    private final ThreeDimensionalPositionMap<BlockState> blocks;
+    private final ThreeDimensionalPositionMap<NbtMap> blockEntities;
     private final NbtMap metadata;
+
+    private final Vector3d centerPosition;
 
     public static Schematic parse(NbtMap nbt) {
         Map<Integer, BlockState> palette = new HashMap<>();
@@ -64,7 +67,7 @@ public class Schematic {
 
         byte[] blockData = nbt.getByteArray("BlockData");
 
-        Map<Vector3i, BlockState> blocks = new HashMap<>();
+        ThreeDimensionalPositionMap<BlockState> blocks = new ThreeDimensionalPositionMap<>();
 
         int index = 0;
         try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(blockData))) {
@@ -77,7 +80,7 @@ public class Schematic {
                 int z = remainder / width;
                 int x = remainder - z * width;
 
-                blocks.put(Vector3i.from(x, y, z), state);
+                blocks.put(x, y, z, state);
                 index++;
             }
 
@@ -85,10 +88,12 @@ public class Schematic {
             throw new RuntimeException(ex);
         }
 
-        Map<Vector3i, NbtMap> blockEntities = new HashMap<>();
+        ThreeDimensionalPositionMap<NbtMap> blockEntities = new ThreeDimensionalPositionMap<>();
         for (NbtMap blockEntity : nbt.getList("BlockEntities", NbtType.COMPOUND)) {
             int[] pos = blockEntity.getIntArray("Pos");
-            Vector3i position = Vector3i.from(pos[0], pos[1], pos[2]);
+            int x = pos[0];
+            int y = pos[1];
+            int z = pos[2];
 
             NbtMapBuilder builder = NbtMap.builder();
             for (Map.Entry<String, Object> entry : blockEntity.entrySet()) {
@@ -104,7 +109,7 @@ public class Schematic {
                 builder.put(entry.getKey(), entry.getValue());
             }
 
-            blockEntities.put(position, builder.build());
+            blockEntities.put(x, y, z, builder.build());
         }
 
         return new Schematic(
@@ -115,7 +120,8 @@ public class Schematic {
                 length,
                 blocks,
                 blockEntities,
-                nbt.getCompound("Metadata")
+                nbt.getCompound("Metadata"),
+                Vector3d.from(width / 2.0D, height / 2.0D, length / 2.0D)
         );
     }
 
@@ -125,10 +131,6 @@ public class Schematic {
 
     public Vector3i getMaxPosition() {
         return Vector3i.from(this.width, this.height, this.length).sub(Vector3i.ONE);
-    }
-
-    public Vector3d getCenterPosition() {
-        return Vector3d.from(this.width / 2.0D, this.height / 2.0D, this.length / 2.0D);
     }
 
     public void paste(Level level, Vector3i position, boolean pasteAir) {
@@ -147,26 +149,28 @@ public class Schematic {
         pasteAir |= this.getMetadata().getBoolean("SCPasteAir", false);
 
         Vector3d centerPos = this.getCenterPosition();
-        for (Map.Entry<Vector3i, BlockState> entry : this.blocks.entrySet()) {
-            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(entry.getKey(), Vector3d.from(centerPos.getX(), entry.getKey().getY(), centerPos.getZ()), rotation));
+
+        boolean finalPasteAir = pasteAir;
+        this.blocks.forEach((x, y, z, state) -> {
+            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, centerPos.getX(), y, centerPos.getZ(), rotation));
             if (positionOperator != null) {
-                schemPos = positionOperator.apply(entry.getKey(), schemPos);
+                schemPos = positionOperator.apply(Vector3i.from(x, y, z), schemPos);
             }
 
-            if (entry.getValue() == null || (!pasteAir && BlockState.AIR.equals(entry.getValue()))) {
-                continue;
+            if (state == null || (!finalPasteAir && BlockState.AIR.equals(state))) {
+                return;
             }
 
-            level.setBlockState(schemPos.getX(), schemPos.getY(), schemPos.getZ(), BlockRotationUtil.rotate(entry.getValue(), rotation));
-        }
+            level.setBlockState(schemPos.getX(), schemPos.getY(), schemPos.getZ(), BlockRotationUtil.rotate(state, rotation));
+        });
 
-        for (Map.Entry<Vector3i, NbtMap> entry : this.blockEntities.entrySet()) {
-            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(entry.getKey(), Vector3d.from(centerPos.getX(), entry.getKey().getY(), centerPos.getZ()), rotation));
+        this.blockEntities.forEach((x, y, z, blockEntity) -> {
+            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, centerPos.getX(), y, centerPos.getZ(), rotation));
             if (positionOperator != null) {
-                schemPos = positionOperator.apply(entry.getKey(), schemPos);
+                schemPos = positionOperator.apply(Vector3i.from(x, y, z), schemPos);
             }
 
-            NbtMap blockEntityTag = entry.getValue().toBuilder()
+            NbtMap blockEntityTag = blockEntity.toBuilder()
                     .putInt("x", schemPos.getX())
                     .putInt("y", schemPos.getY())
                     .putInt("z", schemPos.getZ())
@@ -174,6 +178,6 @@ public class Schematic {
 
             Chunk chunk = level.getChunk(schemPos.getX() >> 4, schemPos.getZ() >> 4);
             chunk.getBlockEntities().add(blockEntityTag);
-        }
+        });
     }
 }

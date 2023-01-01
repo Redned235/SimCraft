@@ -41,6 +41,9 @@ public class City {
     private final List<NetworkTile1Data> networkTile1s = new ArrayList<>();
     private final List<NetworkTile2Data> networkTile2s = new ArrayList<>();
 
+    private final Vector2i dimensions;
+    private final Vector2i tilePosition;
+
     public City(SC4File saveFile, ExemplarFile exemplarFile) {
         this.saveFile = saveFile;
         this.exemplarFile = exemplarFile;
@@ -92,18 +95,13 @@ public class City {
                 this.networkTile2s.add(new NetworkTile2Data(tile));
             }
         }
+
+        this.dimensions = Vector2i.from(this.regionView.getCitySizeX(), this.regionView.getCitySizeY());
+        this.tilePosition = Vector2i.from(this.regionView.getTileXLocation(), this.regionView.getTileYLocation());
     }
 
     public String getName() {
         return this.regionView.getCityName();
-    }
-
-    public Vector2i getDimensions() {
-        return Vector2i.from(this.regionView.getCitySizeX(), this.regionView.getCitySizeY());
-    }
-
-    public Vector2i getTilePosition() {
-        return Vector2i.from(this.regionView.getTileXLocation(), this.regionView.getTileYLocation());
     }
 
     public float[][] getHeightMap() {

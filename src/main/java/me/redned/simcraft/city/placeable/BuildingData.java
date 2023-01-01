@@ -15,6 +15,9 @@ public class BuildingData implements PlaceableData {
     private final Building building;
     private final String identifier;
 
+    private final Vector3f minPosition;
+    private final Vector3f maxPosition;
+
     public BuildingData(Building building, ExemplarFile exemplar) {
         this.building = building;
 
@@ -29,20 +32,14 @@ public class BuildingData implements PlaceableData {
         }
 
         this.identifier = property.getValue();
-    }
 
-    @Override
-    public Vector3f getMinPosition() {
-        return Vector3f.from(
+        this.minPosition = Vector3f.from(
                 this.building.getMinCoordinateX(),
                 this.building.getMinCoordinateY(),
                 this.building.getMinCoordinateZ()
         );
-    }
 
-    @Override
-    public Vector3f getMaxPosition() {
-        return Vector3f.from(
+        this.maxPosition = Vector3f.from(
                 this.building.getMaxCoordinateX(),
                 this.building.getMaxCoordinateY(),
                 this.building.getMaxCoordinateZ()

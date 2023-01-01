@@ -1,4 +1,4 @@
-package me.redned.simcraft.util;
+package me.redned.simcraft.util.collection;
 
 import java.util.ArrayList;
 import java.util.Arrays;

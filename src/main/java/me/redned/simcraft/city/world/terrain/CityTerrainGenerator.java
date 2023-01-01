@@ -6,21 +6,18 @@ import me.redned.levelparser.BlockState;
 import me.redned.simcraft.city.City;
 import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.placeable.BuildingData;
-import me.redned.simcraft.city.lot.LotData;
 import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.piece.NetworkPiece;
 import me.redned.simcraft.schematic.Schematic;
 import me.redned.simcraft.util.Pair;
+import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import me.redned.simcraft.util.heightmap.HeightMap;
 import org.cloudburstmc.math.GenericMath;
-import org.cloudburstmc.math.vector.Vector2i;
 import org.cloudburstmc.math.vector.Vector3i;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RequiredArgsConstructor
@@ -48,17 +45,14 @@ public class CityTerrainGenerator {
     @Getter
     private HeightMap heightMap;
 
-    private final Map<Vector2i, Pair<Schematic, Integer>> tileSchematics = new HashMap<>();
+    private final TwoDimensionalPositionMap<Pair<Schematic, Integer>> tileSchematics = new TwoDimensionalPositionMap<>();
 
     public void buildTerrain() {
         City city = this.region.getCity();
         float[][] rawHeightMap = city.getHeightMap().clone();
 
         // Sync our lot heights
-        for (Map.Entry<Vector2i, LotData> entry : this.region.getLots().entrySet()) {
-            Vector2i position = entry.getKey();
-            rawHeightMap[position.getY()][position.getX()] = entry.getValue().getYPosition();
-        }
+        this.region.getLots().forEach((x, y, lot) -> rawHeightMap[y][x] = lot.getYPosition());
 
         // Go through our buildings and see if there are any that
         // will be placed inside the terrain (i.e. agriculture plots)
@@ -67,7 +61,7 @@ public class CityTerrainGenerator {
             if (schematic != null) {
                 if (schematic.getMetadata().getBoolean("SCTerrainBlend", false)) {
                     // Blend the chunk data with the terrain
-                    this.tileSchematics.put(Vector2i.from((int) building.getMinPosition().getX() >> 4, (int) building.getMinPosition().getZ() >> 4), new Pair<>(schematic, building.getRotation()));
+                    this.tileSchematics.put((int) building.getMinPosition().getX() >> 4, (int) building.getMinPosition().getZ() >> 4, new Pair<>(schematic, building.getRotation()));
                 }
             }
         }
@@ -89,7 +83,7 @@ public class CityTerrainGenerator {
                 // allow for certain tiles (i.e. agriculture tiles) to blend in with the terrain, so they don't look
                 // like terraces.
                 List<Vector3i> occupiedPositions = new ArrayList<>();
-                Pair<Schematic, Integer> occupyingSchematic = this.tileSchematics.get(Vector2i.from(chunkX - 1, chunkZ - 1));
+                Pair<Schematic, Integer> occupyingSchematic = this.tileSchematics.get(chunkX - 1, chunkZ - 1);
                 if (occupyingSchematic != null) {
                     occupyingSchematic.key().paste(this.region.getLevel().getLevel(), Vector3i.from((chunkX - 1) << 4, 0, (chunkZ - 1) << 4), occupyingSchematic.value(), (initialPos, schemPos) -> {
                         int blockX = schemPos.getX();

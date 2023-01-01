@@ -4,12 +4,9 @@ import me.redned.levelparser.BlockState;
 import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
+import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import org.cloudburstmc.math.GenericMath;
-import org.cloudburstmc.math.vector.Vector2i;
 import org.cloudburstmc.math.vector.Vector3i;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RoadNetworkPiece implements NetworkPiece {
     private static final BlockState SIDEWALK_STATE = BlockState.of("minecraft:smooth_stone");
@@ -38,14 +35,14 @@ public class RoadNetworkPiece implements NetworkPiece {
             boolean southConnectivity = false;
             boolean westConnectivity = false;
 
-            Map<Vector2i, Integer> yStorage = new HashMap<>();
+            TwoDimensionalPositionMap<Integer> yStorage = new TwoDimensionalPositionMap<>();
 
             // Build the center pavement (exists for all directions)
             for (int x = position.getX() + OUTER_EDGE_SIZE; x < position.getX() + (SIZE - OUTER_EDGE_SIZE); x++) {
                 for (int z = position.getZ() + OUTER_EDGE_SIZE; z < position.getZ() + (SIZE - OUTER_EDGE_SIZE); z++) {
                     region.setBlockState(x, y + depth, z, PAVEMENT_STATE);
 
-                    yStorage.put(Vector2i.from(x, z), y + depth);
+                    yStorage.put(x, z, y + depth);
                 }
             }
 
@@ -61,7 +58,7 @@ public class RoadNetworkPiece implements NetworkPiece {
 
                         if ((northConnectivity = (network.hasNorthConnectivity() || (connection != null && connection.hasSouthConnectivity()))) && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
-                            yStorage.put(Vector2i.from(x, z), yPos);
+                            yStorage.put(x, z, yPos);
                         } else {
                             buildPavement(region, yStorage, x, yPos, z);
                         }
@@ -81,7 +78,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                     for (int z = position.getZ(); z < position.getZ() + SIZE; z++) {
                         if ((eastConnectivity = (network.hasEastConnectivity() || (connection != null && connection.hasWestConnectivity()))) && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
-                            yStorage.put(Vector2i.from(x, z), yPos);
+                            yStorage.put(x, z, yPos);
                         } else {
                             buildPavement(region, yStorage, x, yPos, z);
                         }
@@ -101,7 +98,7 @@ public class RoadNetworkPiece implements NetworkPiece {
 
                         if ((southConnectivity = (network.hasSouthConnectivity() || (connection != null && connection.hasNorthConnectivity()))) && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
-                            yStorage.put(Vector2i.from(x, z), yPos);
+                            yStorage.put(x, z, yPos);
                         } else {
                             buildPavement(region, yStorage, x, yPos, z);
                         }
@@ -121,7 +118,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                     for (int z = position.getZ(); z < position.getZ() + SIZE; z++) {
                         if ((westConnectivity = (network.hasWestConnectivity() || (connection != null && connection.hasEastConnectivity()))) && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
-                            yStorage.put(Vector2i.from(x, z), yPos);
+                            yStorage.put(x, z, yPos);
                         } else {
                             buildPavement(region, yStorage, x, yPos, z);
                         }
@@ -141,8 +138,8 @@ public class RoadNetworkPiece implements NetworkPiece {
                     int line1 = position.getX() + 6;
                     int line2 = position.getX() + 9;
 
-                    region.setBlockState(line1, yStorage.get(Vector2i.from(line1, z)), z, PAINT_STATE);
-                    region.setBlockState(line2, yStorage.get(Vector2i.from(line2, z)), z, PAINT_STATE);
+                    region.setBlockState(line1, yStorage.get(line1, z), z, PAINT_STATE);
+                    region.setBlockState(line2, yStorage.get(line2, z), z, PAINT_STATE);
                 }
             }
 
@@ -152,8 +149,8 @@ public class RoadNetworkPiece implements NetworkPiece {
                     int line1 = position.getZ() + 6;
                     int line2 = position.getZ() + 9;
 
-                    region.setBlockState(x, yStorage.get(Vector2i.from(x, line1)), line1, PAINT_STATE);
-                    region.setBlockState(x, yStorage.get(Vector2i.from(x, line2)), line2, PAINT_STATE);
+                    region.setBlockState(x, yStorage.get(x, line1), line1, PAINT_STATE);
+                    region.setBlockState(x, yStorage.get(x, line2), line2, PAINT_STATE);
                 }
             }
 
@@ -164,29 +161,29 @@ public class RoadNetworkPiece implements NetworkPiece {
                 for (int offset : CROSSWALK_SPACING) {
                     int xPos = position.getX() + offset;
 
-                    region.setBlockState(xPos, yStorage.get(Vector2i.from(xPos, z)), z, CROSSWALK_STATE);
-                    region.setBlockState(xPos, yStorage.get(Vector2i.from(xPos, z + 1)), z + 1, CROSSWALK_STATE);
+                    region.setBlockState(xPos, yStorage.get(xPos, z), z, CROSSWALK_STATE);
+                    region.setBlockState(xPos, yStorage.get(xPos, z + 1), z + 1, CROSSWALK_STATE);
 
-                    region.setBlockState(xPos, yStorage.get(Vector2i.from(xPos, z + 12)), z + 12, CROSSWALK_STATE);
-                    region.setBlockState(xPos, yStorage.get(Vector2i.from(xPos, z + 13)), z + 13, CROSSWALK_STATE);
+                    region.setBlockState(xPos, yStorage.get(xPos, z + 12), z + 12, CROSSWALK_STATE);
+                    region.setBlockState(xPos, yStorage.get(xPos, z + 13), z + 13, CROSSWALK_STATE);
                 }
 
                 int x = position.getX() + 1;
                 for (int offset : CROSSWALK_SPACING) {
                     int zPos = position.getZ() + offset;
 
-                    region.setBlockState(x, yStorage.get(Vector2i.from(x, zPos)), zPos, CROSSWALK_STATE);
-                    region.setBlockState(x + 1, yStorage.get(Vector2i.from(x + 1, zPos)), zPos, CROSSWALK_STATE);
+                    region.setBlockState(x, yStorage.get(x, zPos), zPos, CROSSWALK_STATE);
+                    region.setBlockState(x + 1, yStorage.get(x + 1, zPos), zPos, CROSSWALK_STATE);
 
-                    region.setBlockState(x + 12, yStorage.get(Vector2i.from(x + 12, zPos)), zPos, CROSSWALK_STATE);
-                    region.setBlockState(x + 13, yStorage.get(Vector2i.from(x + 13, zPos)), zPos, CROSSWALK_STATE);
+                    region.setBlockState(x + 12, yStorage.get(x + 12, zPos), zPos, CROSSWALK_STATE);
+                    region.setBlockState(x + 13, yStorage.get(x + 13, zPos), zPos, CROSSWALK_STATE);
                 }
             }
         }
     }
 
-    private static void buildPavement(CityRegion region, Map<Vector2i, Integer> yStorage, int x, int yPos, int z) {
-        Integer previousHeight = yStorage.get(Vector2i.from(x, z));
+    private static void buildPavement(CityRegion region, TwoDimensionalPositionMap<Integer> yStorage, int x, int yPos, int z) {
+        Integer previousHeight = yStorage.get(x, z);
         if (previousHeight != null) {
             if (previousHeight <= yPos) {
                 region.setBlockState(x, previousHeight, z, SIDEWALK_STATE);
@@ -194,11 +191,11 @@ public class RoadNetworkPiece implements NetworkPiece {
                 region.setBlockState(x, previousHeight, z, BlockState.AIR);
                 region.setBlockState(x, yPos, z, SIDEWALK_STATE);
 
-                yStorage.put(Vector2i.from(x, z), yPos);
+                yStorage.put(x, z, yPos);
             }
         } else {
             region.setBlockState(x, yPos, z, SIDEWALK_STATE);
-            yStorage.put(Vector2i.from(x, z), yPos);
+            yStorage.put(x, z, yPos);
         }
     }
 

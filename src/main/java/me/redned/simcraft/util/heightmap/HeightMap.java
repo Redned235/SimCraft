@@ -1,6 +1,6 @@
 package me.redned.simcraft.util.heightmap;
 
-import org.cloudburstmc.math.vector.Vector3i;
+import org.cloudburstmc.math.GenericMath;
 
 /** Heightmap (heightfield) implementation with adjustable height/width scaling and iterative smoothing
  * @author jrenner */
@@ -20,7 +20,10 @@ public class HeightMap {
 	/** depth (z) of the height map in data points, not world units */
 	private int depth;
 	/** center of the heightmap in world units */
-	private Vector3i center = Vector3i.ZERO;
+	private int centerX;
+	private int centerY;
+	private int centerZ;
+
 	/** number of data points */
 	private int numPoints;
 
@@ -94,13 +97,9 @@ public class HeightMap {
 	}
 
 	private void setCenter() {
-		center = Vector3i.from(getWidthWorld() / 2, (min + max) / 2, getDepthWorld() / 2);
-	}
-
-	/** Get the center of the heightmap in world units */
-	public Vector3i getCenter() {
-		setCenter();
-		return center;
+		this.centerX = GenericMath.floor(getWidthWorld() / 2);
+		this.centerY = GenericMath.floor((min + max) / 2);
+		this.centerZ = GenericMath.floor(getDepthWorld() / 2);
 	}
 
 	public float[][] getData() {
@@ -134,11 +133,6 @@ public class HeightMap {
 		return true;
 	}
 
-	private Vector3i tmp = Vector3i.ZERO;
-	private Vector3i tmp2 = Vector3i.ZERO;
-	private Vector3i tmp3 = Vector3i.ZERO;
-	private Vector3i tmp4 = Vector3i.ZERO;
-
 	/** get height for single point at x,z coords, accounting for scale, does not interpolate using neighbors
 	 *  parameters assume heightmap starts at origin 0,0 */
 	public float getHeight(float xf, float zf) {
@@ -161,10 +155,10 @@ public class HeightMap {
 	 * parameters assume heightmap's origin is at world coordinates x:0, z: 0
 	 * @return the scale-adjusted interpolated height at specified world coordinates */
 	public float getInterpolatedHeight(float xf, float zf) {
-		Vector3i a;
-		Vector3i b;
-		Vector3i c;
-		Vector3i d;
+		int ay;
+		int by;
+		int cy;
+		int dy;
 
 		float baseX = (float) Math.floor(xf / widthScale);
 		float baseZ = (float) Math.floor(zf / widthScale);
@@ -173,16 +167,16 @@ public class HeightMap {
 		float x2 = x + widthScale;
 		float z2 = z + widthScale;
 
-		a = Vector3i.from(x,   getHeight(x  , z2), z2);
-		b = Vector3i.from(x,   getHeight(x  ,   z),   z);
-		c = Vector3i.from(x2, getHeight(x2,   z),   z);
-		d = Vector3i.from(x2, getHeight(x2, z2), z2);
+		ay = GenericMath.floor(getHeight(x, z2));
+		by = GenericMath.floor(getHeight(x, z));
+		cy = GenericMath.floor(getHeight(x2, z));
+		dy = GenericMath.floor(getHeight(x2, z2));
 
 		float zFrac = 1f - (zf - z) / widthScale;
 		float xFrac = (xf - x) / widthScale;
 
-		return (1f - zFrac) * ((1-xFrac) * a.getY() + xFrac * d.getY())
-			  + zFrac * ((1-xFrac) * b.getY() + xFrac * c.getY());
+		return (1f - zFrac) * ((1-xFrac) * ay + xFrac * dy)
+			  + zFrac * ((1-xFrac) * by + xFrac * cy);
 	}
 
 	private int worldCoordToIndex(float f) {
@@ -226,8 +220,7 @@ public class HeightMap {
 
 	@Override
 	public String toString() {
-		getCenter();
 		return String.format("[HeightMap] min/max: %.1f, %.1f - World w/h: %.1f, %.1f - points: %d, center: %.1f, %.1f, %.1f",
-				min, max, getWidthWorld(), getDepthWorld(), getNumPoints(), center.getX(), center.getY(), center.getZ());
+				min, max, getWidthWorld(), getDepthWorld(), getNumPoints(), this.centerX, this.centerY, this.centerZ);
 	}
 }

@@ -5,19 +5,22 @@ import org.cloudburstmc.math.vector.Vector3i;
 
 public class MathUtil {
 
-    public static Vector3i rotateAroundYAxis(Vector3i pos, Vector3d axis, int angle) {
-        Vector3d vec3d = rotateAroundY(pos.toDouble().sub(axis).mul(1, 0, 1), angle).add(axis);
+    public static Vector3i rotateAroundYAxis(int x, int z, double axisX, double axisY, double axisZ, int angle) {
+        double dx = x - axisX;
+        double dz = z - axisZ;
+
+        Vector3d vec3d = rotateAroundY(dx, 0, dz, angle).add(axisX, axisY, axisZ);
         return vec3d.ceil().toInt();
     }
 
-    public static Vector3d rotateAroundY(Vector3d pos, int angle) {
+    public static Vector3d rotateAroundY(double x, double y, double z, int angle) {
         double cos = fastCos(angle);
         double sin = fastSin(angle);
 
-        double x = cos * pos.getX() + sin * pos.getZ();
-        double z = -sin * pos.getX() + cos * pos.getZ();
+        double xPos = cos * x + sin * z;
+        double zPos = -sin * x + cos * z;
 
-        return Vector3d.from(x, pos.getY(), z);
+        return Vector3d.from(xPos, y, zPos);
     }
 
     private static double fastCos(int degrees) {

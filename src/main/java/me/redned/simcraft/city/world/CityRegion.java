@@ -10,14 +10,13 @@ import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
 import me.redned.simcraft.schematic.Schematic;
+import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import org.cloudburstmc.math.vector.Vector2i;
 import org.cloudburstmc.math.vector.Vector3d;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class CityRegion {
@@ -30,7 +29,9 @@ public class CityRegion {
     private final CityTerrainGenerator terrainGenerator;
     private final CityNetworkBuilder networkBuilder;
 
-    private final Map<Vector2i, LotData> lots = new HashMap<>();
+    private final TwoDimensionalPositionMap<LotData> lots = new TwoDimensionalPositionMap<>();
+
+    private final Vector2i minPosition;
 
     private final boolean debug;
 
@@ -44,17 +45,19 @@ public class CityRegion {
         this.debug = debug;
 
         for (LotData lot : city.getLots()) {
-            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMaxTilePosition().getX() + lot.getSize().getX(); chunkX++) {
-                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMaxTilePosition().getY() + lot.getSize().getY(); chunkZ++) {
+            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMaxTilePosition().getX() + lot.getDimensions().getX(); chunkX++) {
+                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMaxTilePosition().getY() + lot.getDimensions().getY(); chunkZ++) {
                     if (chunkX < 0 || chunkZ < 0) {
                         System.err.println("Invalid lot position: " + chunkX + " " + chunkZ);
                         continue;
                     }
 
-                    this.lots.put(Vector2i.from(chunkX, chunkZ), lot);
+                    this.lots.put(chunkX, chunkZ, lot);
                 }
             }
         }
+
+        this.minPosition = Vector2i.from((this.getTilePosition().getX() * TILE_SIZE) << 4, (this.getTilePosition().getY() * TILE_SIZE) << 4);
     }
 
     public void buildCity() {
@@ -128,17 +131,11 @@ public class CityRegion {
     }
 
     public LotData getLot(int tileX, int tileZ) {
-        return this.lots.get(Vector2i.from(tileX, tileZ));
+        return this.lots.get(tileX, tileZ);
     }
 
     public Vector2i getTilePosition() {
-        Vector2i position = this.city.getTilePosition();
-        return Vector2i.from(position.getX(), position.getY()); // SimCity flips the z coordinate
-    }
-
-    public Vector2i getMinPosition() {
-        Vector2i position = this.getTilePosition();
-        return Vector2i.from((position.getX() * TILE_SIZE) << 4, (position.getY() * TILE_SIZE) << 4);
+        return this.city.getTilePosition();
     }
 
     public Chunk getChunk(int x, int z) {

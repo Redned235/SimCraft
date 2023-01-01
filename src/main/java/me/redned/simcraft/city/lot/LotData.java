@@ -12,29 +12,29 @@ import org.cloudburstmc.math.vector.Vector2i;
 public class LotData {
     private final Lot lot;
 
+    private final Vector2i minTilePosition;
+    private final Vector2i maxTilePosition;
+
+    private final Vector2i dimensions;
+
     public LotData(Lot lot) {
         this.lot = lot;
+
+        this.minTilePosition = Vector2i.from(this.lot.getMinTileX(), this.lot.getMinTileZ());
+        this.maxTilePosition = Vector2i.from(this.lot.getMaxTileX(), this.lot.getMaxTileZ());
+        this.dimensions = Vector2i.from(this.lot.getSizeX(), this.lot.getSizeZ());
     }
 
     public Vector2i getMinTilePosition() {
-        return Vector2i.from(
-                this.lot.getMinTileX(),
-                this.lot.getMinTileZ()
-        );
+        return this.minTilePosition;
     }
 
     public Vector2i getMaxTilePosition() {
-        return Vector2i.from(
-                this.lot.getMaxTileX(),
-                this.lot.getMaxTileZ()
-        );
+        return this.maxTilePosition;
     }
 
-    public Vector2i getSize() {
-        return Vector2i.from(
-                this.lot.getSizeX(),
-                this.lot.getSizeZ()
-        );
+    public Vector2i getDimensions() {
+        return this.dimensions;
     }
 
     public float getYPosition() {
