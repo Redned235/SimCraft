@@ -4,7 +4,7 @@ A program to convert SimCity 4 (Deluxe) cities into Minecraft worlds.
 
 **This is still very much a heavy work in progress and cities are unlikely to be translated perfectly.** 
 
-![image](https://user-images.githubusercontent.com/29153871/210121631-b42eee46-473c-4ff7-864c-3207989d9703.png)
+![image](https://user-images.githubusercontent.com/29153871/210161518-753d89e8-3cef-415b-a840-0b00771f4d16.png)
 
 ## What Currently Works
 - Terrain conversion
