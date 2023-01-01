@@ -10,9 +10,10 @@ A program to convert SimCity 4 (Deluxe) cities into Minecraft worlds.
 - Terrain conversion
 - Agriculture plots
 - Buildings & prop placement (most schematics have not been made for these however, and will have scaffolding placed in the meantime)
+- Roads & streets
 
 ## What Needs Implementing
-- Roads
+- Avenues & highways
 - Underground tiles (subways, pipes, etc.)
 - Many, many building & prop builds. Placement works, but most builds have not been created yet.
 - Bridges & Trains

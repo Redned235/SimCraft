@@ -3,10 +3,11 @@ package me.redned.simcraft.city.world;
 import lombok.Getter;
 import me.redned.levelparser.BlockState;
 import me.redned.levelparser.Chunk;
-import me.redned.levelparser.anvil.AnvilLevel;
 import me.redned.simcraft.city.City;
-import me.redned.simcraft.city.PlaceableData;
+import me.redned.simcraft.city.lot.LotData;
+import me.redned.simcraft.city.placeable.PlaceableData;
 import me.redned.simcraft.city.schematic.CitySchematics;
+import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
 import me.redned.simcraft.schematic.Schematic;
 import org.cloudburstmc.math.vector.Vector2i;
@@ -14,7 +15,9 @@ import org.cloudburstmc.math.vector.Vector3d;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class CityRegion {
@@ -25,6 +28,9 @@ public class CityRegion {
     private final CityLevel level;
 
     private final CityTerrainGenerator terrainGenerator;
+    private final CityNetworkBuilder networkBuilder;
+
+    private final Map<Vector2i, LotData> lots = new HashMap<>();
 
     private final boolean debug;
 
@@ -33,13 +39,30 @@ public class CityRegion {
         this.level = level;
 
         this.terrainGenerator = new CityTerrainGenerator(this, HEIGHT_DIVISOR);
+        this.networkBuilder = new CityNetworkBuilder(this, this.terrainGenerator);
 
         this.debug = debug;
+
+        for (LotData lot : city.getLots()) {
+            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMaxTilePosition().getX() + lot.getSize().getX(); chunkX++) {
+                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMaxTilePosition().getY() + lot.getSize().getY(); chunkZ++) {
+                    if (chunkX < 0 || chunkZ < 0) {
+                        System.err.println("Invalid lot position: " + chunkX + " " + chunkZ);
+                        continue;
+                    }
+
+                    this.lots.put(Vector2i.from(chunkX, chunkZ), lot);
+                }
+            }
+        }
     }
 
     public void buildCity() {
         // Build terrain first
         this.terrainGenerator.buildTerrain();
+
+        // Build transportation networks
+        this.networkBuilder.buildNetworks();
 
         // Build placeables
         this.buildPlaceables(this.city.getFlora(), false);
@@ -102,6 +125,10 @@ public class CityRegion {
                 this.setBlockState(minPos.getX(), maxPos.getY(), minPos.getZ(), BlockState.of("minecraft:oak_sign"));
             }
         }
+    }
+
+    public LotData getLot(int tileX, int tileZ) {
+        return this.lots.get(Vector2i.from(tileX, tileZ));
     }
 
     public Vector2i getTilePosition() {

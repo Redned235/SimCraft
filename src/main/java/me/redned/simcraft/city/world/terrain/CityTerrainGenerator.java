@@ -1,12 +1,15 @@
 package me.redned.simcraft.city.world.terrain;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.redned.levelparser.BlockState;
 import me.redned.simcraft.city.City;
-import me.redned.simcraft.city.building.BuildingData;
+import me.redned.simcraft.city.network.NetworkData;
+import me.redned.simcraft.city.placeable.BuildingData;
 import me.redned.simcraft.city.lot.LotData;
 import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.CityRegion;
+import me.redned.simcraft.city.world.network.piece.NetworkPiece;
 import me.redned.simcraft.schematic.Schematic;
 import me.redned.simcraft.util.Pair;
 import me.redned.simcraft.util.heightmap.HeightMap;
@@ -29,7 +32,7 @@ public class CityTerrainGenerator {
     private static final int SAND_WATER_HEIGHT_LEVEL = 5;
     private static final int STONE_CHANCE = 5;
     private static final int DIRT_DEPTH = 1;
-    private static final int STONE_DEPTH = 15;
+    private static final int STONE_DEPTH = 30;
 
     private static final BlockState GRASS = BlockState.of("minecraft:grass_block");
     private static final BlockState DIRT = BlockState.of("minecraft:dirt");
@@ -38,7 +41,12 @@ public class CityTerrainGenerator {
     private static final BlockState WATER = BlockState.of("minecraft:water");
 
     private final CityRegion region;
+
+    @Getter
     private final int heightDivisor;
+
+    @Getter
+    private HeightMap heightMap;
 
     private final Map<Vector2i, Pair<Schematic, Integer>> tileSchematics = new HashMap<>();
 
@@ -47,18 +55,9 @@ public class CityTerrainGenerator {
         float[][] rawHeightMap = city.getHeightMap().clone();
 
         // Sync our lot heights
-        for (LotData lot : city.getLots()) {
-            float yPosition = lot.getYPosition();
-            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMaxTilePosition().getX() + lot.getSize().getX(); chunkX++) {
-                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMaxTilePosition().getY() + lot.getSize().getY(); chunkZ++) {
-                    if (chunkX < 0 || chunkZ < 0) {
-                        System.err.println("Invalid lot position: " + chunkX + " " + chunkZ);
-                        continue;
-                    }
-
-                    rawHeightMap[chunkZ][chunkX] = yPosition;
-                }
-            }
+        for (Map.Entry<Vector2i, LotData> entry : this.region.getLots().entrySet()) {
+            Vector2i position = entry.getKey();
+            rawHeightMap[position.getY()][position.getX()] = entry.getValue().getYPosition();
         }
 
         // Go through our buildings and see if there are any that
@@ -73,14 +72,15 @@ public class CityTerrainGenerator {
             }
         }
 
-        // Set our city heightmap
         HeightMap heightMap = new HeightMap(rawHeightMap, city.getDimensions().getX(), city.getDimensions().getY(), SMOOTHING_PASSES);
+
+        // Set our city heightmap
+        this.heightMap = heightMap;
 
         // The swap of X & Z is intentional, despite X being
         // first in the array. SimCity considers its X tile to what
         // Minecraft uses as Z, and it's Y tile as what Minecraft
         // uses as X.
-
         for (int chunkZ = 1; chunkZ < rawHeightMap.length; chunkZ++) {
             float[] zPositions = rawHeightMap[chunkZ];
             for (int chunkX = 1; chunkX < zPositions.length; chunkX++) {
@@ -102,11 +102,18 @@ public class CityTerrainGenerator {
                     }, false);
                 }
 
+                NetworkData groundNetwork = this.region.getNetworkBuilder().getGroundNetwork((chunkX - 1), (chunkZ - 1));
+
                 for (int x = 0; x < 16; x++) {
                     for (int z = 0; z < 16; z++) {
                         int blockX = ((chunkX - 1) << 4) + x;
                         int blockZ = ((chunkZ - 1) << 4) + z;
                         float height = heightMap.getData()[blockZ][blockX];
+
+                        // Use ground network height if we have one
+                        if (groundNetwork != null) {
+                            height = groundNetwork.getMinPosition().getY() - NetworkPiece.DEPTH;
+                        }
 
                         // Generate water if the terrain is below the water Y
                         int blockHeight = GenericMath.floor(height / this.heightDivisor);
@@ -135,8 +142,8 @@ public class CityTerrainGenerator {
                             stoneChance = Math.max(STONE_CHANCE, GenericMath.floor(((double) ((blockHeight - halfwayPoint) * 2) / this.getHeight()) * 100));
                         }
 
-                        // Don't place ground level if we have a schematic occupying the terrain
-                        if (occupyingSchematic == null) {
+                        // Don't place ground level if we have a schematic occupying the terrain or a network
+                        if (occupyingSchematic == null && groundNetwork == null) {
                             this.region.setBlockState(blockX, blockHeight, blockZ, ThreadLocalRandom.current().nextInt(0, 100) <= stoneChance ? STONE : GRASS);
                         }
 
@@ -165,6 +172,14 @@ public class CityTerrainGenerator {
                 }
             }
         }
+    }
+
+    public int getHeight(int x, int z) {
+        return GenericMath.floor(this.heightMap.getHeight(x, z) / this.heightDivisor);
+    }
+
+    public int getInterpolatedHeight(int x, int z) {
+        return GenericMath.floor(this.heightMap.getInterpolatedHeight(x, z) / this.heightDivisor);
     }
 
     public int getHeight() {

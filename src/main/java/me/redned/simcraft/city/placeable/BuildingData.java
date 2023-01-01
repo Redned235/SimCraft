@@ -1,8 +1,7 @@
-package me.redned.simcraft.city.building;
+package me.redned.simcraft.city.placeable;
 
 import lombok.Getter;
 import lombok.ToString;
-import me.redned.simcraft.city.PlaceableData;
 import me.redned.simreader.sc4.storage.exemplar.ExemplarFile;
 import me.redned.simreader.sc4.storage.exemplar.property.ExemplarPropertyTypes;
 import me.redned.simreader.sc4.storage.exemplar.property.type.StringProperty;

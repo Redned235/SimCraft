@@ -1,4 +1,4 @@
-package me.redned.simcraft.city;
+package me.redned.simcraft.city.placeable;
 
 import org.cloudburstmc.math.vector.Vector3f;
 

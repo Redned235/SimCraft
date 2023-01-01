@@ -1,16 +1,20 @@
 package me.redned.simcraft.city;
 
 import lombok.Getter;
-import me.redned.simcraft.city.building.BuildingData;
-import me.redned.simcraft.city.flora.FloraData;
+import me.redned.simcraft.city.placeable.BuildingData;
+import me.redned.simcraft.city.placeable.FloraData;
 import me.redned.simcraft.city.lot.LotData;
-import me.redned.simcraft.city.prop.PropData;
+import me.redned.simcraft.city.placeable.PropData;
+import me.redned.simcraft.city.network.NetworkTile1Data;
+import me.redned.simcraft.city.network.NetworkTile2Data;
 import me.redned.simreader.sc4.storage.SC4File;
 import me.redned.simreader.sc4.storage.exemplar.ExemplarFile;
 import me.redned.simreader.sc4.storage.type.RegionViewSubfile;
 import me.redned.simreader.sc4.type.Building;
 import me.redned.simreader.sc4.type.Flora;
 import me.redned.simreader.sc4.type.Lot;
+import me.redned.simreader.sc4.type.NetworkTile1;
+import me.redned.simreader.sc4.type.NetworkTile2;
 import me.redned.simreader.sc4.type.Prop;
 import org.cloudburstmc.math.vector.Vector2i;
 
@@ -34,6 +38,8 @@ public class City {
     private final List<PropData> props = new ArrayList<>();
     private final List<FloraData> flora = new ArrayList<>();
     private final List<LotData> lots = new ArrayList<>();
+    private final List<NetworkTile1Data> networkTile1s = new ArrayList<>();
+    private final List<NetworkTile2Data> networkTile2s = new ArrayList<>();
 
     public City(SC4File saveFile, ExemplarFile exemplarFile) {
         this.saveFile = saveFile;
@@ -62,6 +68,28 @@ public class City {
         if (saveFile.getLotFile() != null) {
             for (Lot lot : saveFile.getLotFile().getLots()) {
                 this.lots.add(new LotData(lot));
+            }
+        }
+
+        if (saveFile.getNetworkTile1File() != null) {
+            for (NetworkTile1 tile : saveFile.getNetworkTile1File().getNetworkTiles()) {
+                if (tile.getMinCoordinateX() < 0 || tile.getMinCoordinateY() < 0 || tile.getMinCoordinateZ() < 0) {
+                    System.err.println("Network tile at " + tile.getMinCoordinateX() + " " + tile.getMinCoordinateY() + " " + tile.getMinCoordinateZ() + " was out of the world!");
+                    continue;
+                }
+
+                this.networkTile1s.add(new NetworkTile1Data(tile));
+            }
+        }
+
+        if (saveFile.getNetworkTile2File() != null) {
+            for (NetworkTile2 tile : saveFile.getNetworkTile2File().getNetworkTiles()) {
+                if (tile.getMinCoordinateX() < 0 || tile.getMinCoordinateY() < 0 || tile.getMinCoordinateZ() < 0) {
+                    System.err.println("Network tile (2) at " + tile.getMinCoordinateX() + " " + tile.getMinCoordinateY() + " " + tile.getMinCoordinateZ() + " was out of the world!");
+                    continue;
+                }
+
+                this.networkTile2s.add(new NetworkTile2Data(tile));
             }
         }
     }

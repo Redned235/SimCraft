@@ -3,7 +3,8 @@ package me.redned.simcraft.city.lot;
 import lombok.Getter;
 import lombok.ToString;
 import me.redned.simreader.sc4.type.Lot;
-import org.cloudburstmc.math.vector.Vector2f;
+import me.redned.simreader.sc4.type.LotZoneType;
+import me.redned.simreader.sc4.type.LotZoneWealth;
 import org.cloudburstmc.math.vector.Vector2i;
 
 @ToString
@@ -38,5 +39,37 @@ public class LotData {
 
     public float getYPosition() {
         return this.lot.getPositionY();
+    }
+
+    public LotZoneType getZoneType() {
+        return this.lot.getZoneType();
+    }
+
+    public LotZoneWealth getZoneWealth() {
+        return this.lot.getZoneWealth();
+    }
+
+    public boolean isIndustrial() {
+        LotZoneType zoneType = this.lot.getZoneType();
+        return switch (zoneType) {
+            case INDUSTRIAL_LOW, INDUSTRIAL_MEDIUM, INDUSTRIAL_HIGH -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isResidential() {
+        LotZoneType zoneType = this.lot.getZoneType();
+        return switch (zoneType) {
+            case RESIDENTIAL_LOW, RESIDENTIAL_MEDIUM, RESIDENTIAL_HIGH -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isCommercial() {
+        LotZoneType zoneType = this.lot.getZoneType();
+        return switch (zoneType) {
+            case COMMERCIAL_LOW, COMMERCIAL_MEDIUM, COMMERCIAL_HIGH -> true;
+            default -> false;
+        };
     }
 }

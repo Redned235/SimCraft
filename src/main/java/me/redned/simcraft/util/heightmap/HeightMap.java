@@ -161,10 +161,10 @@ public class HeightMap {
 	 * parameters assume heightmap's origin is at world coordinates x:0, z: 0
 	 * @return the scale-adjusted interpolated height at specified world coordinates */
 	public float getInterpolatedHeight(float xf, float zf) {
-		Vector3i a = tmp;
-		Vector3i b = tmp2;
-		Vector3i c = tmp3;
-		Vector3i d = tmp4;
+		Vector3i a;
+		Vector3i b;
+		Vector3i c;
+		Vector3i d;
 
 		float baseX = (float) Math.floor(xf / widthScale);
 		float baseZ = (float) Math.floor(zf / widthScale);
@@ -181,10 +181,8 @@ public class HeightMap {
 		float zFrac = 1f - (zf - z) / widthScale;
 		float xFrac = (xf - x) / widthScale;
 
-		float y = (1f - zFrac) * ((1-xFrac) * a.getY() + xFrac * d.getY())
+		return (1f - zFrac) * ((1-xFrac) * a.getY() + xFrac * d.getY())
 			  + zFrac * ((1-xFrac) * b.getY() + xFrac * c.getY());
-
-		return y;
 	}
 
 	private int worldCoordToIndex(float f) {
