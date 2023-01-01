@@ -32,7 +32,7 @@ public class CityTerrainGenerator {
     private static final int SAND_WATER_HEIGHT_LEVEL = 5;
     private static final int STONE_CHANCE = 5;
     private static final int DIRT_DEPTH = 1;
-    private static final int STONE_DEPTH = 30;
+    private static final int STONE_DEPTH = 64;
 
     private static final BlockState GRASS = BlockState.of("minecraft:grass_block");
     private static final BlockState DIRT = BlockState.of("minecraft:dirt");
