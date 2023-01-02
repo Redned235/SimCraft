@@ -45,8 +45,8 @@ public class CityRegion {
         this.debug = debug;
 
         for (LotData lot : city.getLots()) {
-            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMaxTilePosition().getX() + lot.getDimensions().getX(); chunkX++) {
-                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMaxTilePosition().getY() + lot.getDimensions().getY(); chunkZ++) {
+            for (int chunkX = lot.getMinTilePosition().getX(); chunkX < lot.getMinTilePosition().getX() + lot.getDimensions().getX(); chunkX++) {
+                for (int chunkZ = lot.getMinTilePosition().getY(); chunkZ < lot.getMinTilePosition().getY() + lot.getDimensions().getY(); chunkZ++) {
                     if (chunkX < 0 || chunkZ < 0) {
                         System.err.println("Invalid lot position: " + chunkX + " " + chunkZ);
                         continue;

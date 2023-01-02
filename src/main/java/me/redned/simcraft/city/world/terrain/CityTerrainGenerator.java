@@ -1,16 +1,17 @@
 package me.redned.simcraft.city.world.terrain;
 
+import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.redned.levelparser.BlockState;
 import me.redned.simcraft.city.City;
+import me.redned.simcraft.city.lot.LotData;
 import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.placeable.BuildingData;
 import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.piece.NetworkPiece;
 import me.redned.simcraft.schematic.Schematic;
-import me.redned.simcraft.util.Pair;
 import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import me.redned.simcraft.util.heightmap.HeightMap;
 import org.cloudburstmc.math.GenericMath;
@@ -45,7 +46,7 @@ public class CityTerrainGenerator {
     @Getter
     private HeightMap heightMap;
 
-    private final TwoDimensionalPositionMap<Pair<Schematic, Integer>> tileSchematics = new TwoDimensionalPositionMap<>();
+    private final TwoDimensionalPositionMap<ObjectIntPair<Schematic>> tileSchematics = new TwoDimensionalPositionMap<>();
 
     public void buildTerrain() {
         City city = this.region.getCity();
@@ -61,7 +62,7 @@ public class CityTerrainGenerator {
             if (schematic != null) {
                 if (schematic.getMetadata().getBoolean("SCTerrainBlend", false)) {
                     // Blend the chunk data with the terrain
-                    this.tileSchematics.put((int) building.getMinPosition().getX() >> 4, (int) building.getMinPosition().getZ() >> 4, new Pair<>(schematic, building.getRotation()));
+                    this.tileSchematics.put((int) building.getMinPosition().getX() >> 4, (int) building.getMinPosition().getZ() >> 4, ObjectIntPair.of(schematic, building.getRotation()));
                 }
             }
         }
@@ -75,37 +76,38 @@ public class CityTerrainGenerator {
         // first in the array. SimCity considers its X tile to what
         // Minecraft uses as Z, and it's Y tile as what Minecraft
         // uses as X.
-        for (int chunkZ = 1; chunkZ < rawHeightMap.length; chunkZ++) {
+        for (int chunkZ = 0; chunkZ < rawHeightMap.length - 1; chunkZ++) {
             float[] zPositions = rawHeightMap[chunkZ];
-            for (int chunkX = 1; chunkX < zPositions.length; chunkX++) {
+            for (int chunkX = 0; chunkX < zPositions.length - 1; chunkX++) {
                 // Check if we have a schematic occupying this chunk. This allows the terrain generator
                 // to use blocks from the schematic rather than the default ones. Main purpose for this is to
                 // allow for certain tiles (i.e. agriculture tiles) to blend in with the terrain, so they don't look
                 // like terraces.
                 List<Vector3i> occupiedPositions = new ArrayList<>();
-                Pair<Schematic, Integer> occupyingSchematic = this.tileSchematics.get(chunkX - 1, chunkZ - 1);
+                ObjectIntPair<Schematic> occupyingSchematic = this.tileSchematics.get(chunkX, chunkZ);
                 if (occupyingSchematic != null) {
-                    occupyingSchematic.key().paste(this.region.getLevel().getLevel(), Vector3i.from((chunkX - 1) << 4, 0, (chunkZ - 1) << 4), occupyingSchematic.value(), (initialPos, schemPos) -> {
+                    occupyingSchematic.key().paste(this.region.getLevel().getLevel(), Vector3i.from(chunkX << 4, 0, chunkZ << 4), occupyingSchematic.valueInt(), (initialPos, schemPos) -> {
                         int blockX = schemPos.getX();
                         int blockZ = schemPos.getZ();
 
                         float height = heightMap.getData()[Math.max(0, blockZ - 1)][Math.max(0, blockX - 1)] / this.heightDivisor;
-                        Vector3i pos = fixOccupiedChunkOffset(Vector3i.from(blockX, height + initialPos.getY(), blockZ), occupyingSchematic.value());
+                        Vector3i pos = fixOccupiedChunkOffset(Vector3i.from(blockX, height + initialPos.getY(), blockZ), occupyingSchematic.valueInt());
                         occupiedPositions.add(pos);
                         return pos.add(this.region.getMinPosition().getX(), 0, this.region.getMinPosition().getY()); // Add minimum positions
                     }, false);
                 }
 
-                NetworkData groundNetwork = this.region.getNetworkBuilder().getGroundNetwork((chunkX - 1), (chunkZ - 1));
+                NetworkData groundNetwork = this.region.getNetworkBuilder().getGroundNetwork(chunkX, chunkZ);
 
+                LotData lot = this.region.getLot(chunkX, chunkZ);
                 for (int x = 0; x < 16; x++) {
                     for (int z = 0; z < 16; z++) {
-                        int blockX = ((chunkX - 1) << 4) + x;
-                        int blockZ = ((chunkZ - 1) << 4) + z;
-                        float height = heightMap.getData()[blockZ][blockX];
+                        int blockX = (chunkX << 4) + x;
+                        int blockZ = (chunkZ << 4) + z;
+                        float height = (lot != null && occupyingSchematic == null) ? lot.getYPosition() : heightMap.getHeight(blockX, blockZ);
 
                         // Use ground network height if we have one
-                        if (groundNetwork != null) {
+                        if (groundNetwork != null && lot == null) {
                             height = groundNetwork.getMinPosition().getY() - NetworkPiece.DEPTH;
                         }
 
