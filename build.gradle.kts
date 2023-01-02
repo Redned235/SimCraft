@@ -27,6 +27,7 @@ dependencies {
     api("com.github.Redned235.LevelParser:anvil:master-SNAPSHOT")
     api("com.github.Redned235:SimReader:master-SNAPSHOT")
 
+    implementation("org.json:json:20220924")
     implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
     implementation("org.cloudburstmc.math:immutable:2.0")
 
@@ -48,6 +49,8 @@ tasks.withType<ShadowJar> {
 
     archiveFileName.set("${project.name}.jar")
     archiveClassifier.set("")
+
+    minimize()
 }
 
 tasks.jar {

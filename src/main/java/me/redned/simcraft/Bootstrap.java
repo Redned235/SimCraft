@@ -11,6 +11,8 @@ import me.redned.simcraft.city.placeable.PropData;
 import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.util.FileUtil;
+import me.redned.simcraft.util.GameInstallUtil;
+import me.redned.simcraft.util.OS;
 import me.redned.simreader.sc4.storage.exemplar.ExemplarFile;
 
 import java.io.IOException;
@@ -30,8 +32,7 @@ public final class Bootstrap {
             .withValuesConvertedBy(new PathConverter());
 
     private static final OptionSpec<Path> GAME_DIR_PATH_SPEC = PARSER.acceptsAll(List.of("g", "gamedir"), "Location of SimCity 4 game directory.")
-            .requiredUnless("help")
-            .withRequiredArg()
+            .withOptionalArg()
             .withValuesConvertedBy(new PathConverter());
 
     private static final OptionSpec<Path> OUTPUT_DIR_PATH_SPEC = PARSER.acceptsAll(List.of("o", "output"), "Output location of the Minecraft world.")
@@ -49,6 +50,19 @@ public final class Bootstrap {
             return;
         }
 
+        Path gameDir = null;
+        if (optionSet.has(GAME_DIR_PATH_SPEC)) {
+            gameDir = optionSet.valueOf(GAME_DIR_PATH_SPEC);
+        } else {
+            if (OS.getOS() == OS.WINDOWS) {
+                gameDir = GameInstallUtil.getGameInstallLocation();
+            }
+
+            if (gameDir == null) {
+                throw new RuntimeException("SimCity game directory was not entered & could not be found automatically!");
+            }
+        }
+
         boolean debug = optionSet.has(DEBUG_SPEC);
         if (debug) {
             System.out.println("Debug mode enabled!");
@@ -59,7 +73,6 @@ public final class Bootstrap {
             throw new RuntimeException("City directory was not found or was not a directory!");
         }
 
-        Path gameDir = optionSet.valueOf(GAME_DIR_PATH_SPEC);
         Path exemplarPath = gameDir.resolve("SimCity_1.dat");
         if (Files.notExists(exemplarPath)) {
             throw new RuntimeException("SimCity_1.dat exemplar file not found in specified game directory! Ensure this file exists in the directory you provided!");

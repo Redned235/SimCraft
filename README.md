@@ -29,6 +29,7 @@ Additionally, you must also have SimCity 4 installed for this to work, as this p
     ```shell
     java -jar SimCraft.jar -c <city directory> -g <game directory> -o <output>
     ```
+   **Note**: SimCraft will attempt to find the game directory automatically on Windows, so the `-g` option can be omitted.
 4. Once everything has completed, place the output directory inside your Minecraft `saves` file, and teleport to the coordinates the city was pasted at (it will print this in the console).
 
 ## Contributing

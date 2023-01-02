@@ -216,28 +216,18 @@ public class StreetNetworkPiece implements NetworkPiece {
     private static List<LotData> getNearbyLots(CityRegion region, int tileX, int tileZ) {
         List<LotData> lots = new ArrayList<>();
 
-        // Check north
-        LotData northLot = region.getLot(tileX, tileZ - 1);
-        if (northLot != null) {
-            lots.add(northLot);
-        }
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                // Don't check on self
+                if (x == 0 && z == 0) {
+                    continue;
+                }
 
-        // Check east
-        LotData eastLot = region.getLot(tileX + 1, tileZ);
-        if (eastLot != null) {
-            lots.add(eastLot);
-        }
-
-        // Check south
-        LotData southLot = region.getLot(tileX, tileZ + 1);
-        if (southLot != null) {
-            lots.add(southLot);
-        }
-
-        // Check west
-        LotData westLot = region.getLot(tileX - 1, tileZ);
-        if (westLot != null) {
-            lots.add(westLot);
+                LotData lot = region.getLot(tileX + x, tileZ + z);
+                if (lot != null) {
+                    lots.add(lot);
+                }
+            }
         }
 
         return lots;
