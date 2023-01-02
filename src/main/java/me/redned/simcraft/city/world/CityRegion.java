@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 public class CityRegion {
     private static final int HEIGHT_DIVISOR = 2;
-    private static final int TILE_SIZE = 64;
+    private static final int REGION_TILE_SIZE = 64;
 
     private final City city;
     private final CityLevel level;
@@ -57,7 +57,7 @@ public class CityRegion {
             }
         }
 
-        this.minPosition = Vector2i.from((this.getTilePosition().getX() * TILE_SIZE) << 4, (this.getTilePosition().getY() * TILE_SIZE) << 4);
+        this.minPosition = Vector2i.from((this.getTilePosition().getX() * REGION_TILE_SIZE) << 4, (this.getTilePosition().getY() * REGION_TILE_SIZE) << 4);
     }
 
     public void buildCity() {
@@ -140,7 +140,7 @@ public class CityRegion {
 
     public Chunk getChunk(int x, int z) {
         Vector2i position = this.getTilePosition();
-        return this.level.getLevel().getChunk((position.getX() * TILE_SIZE) + x, (position.getY() * TILE_SIZE) + z);
+        return this.level.getLevel().getChunk((position.getX() * REGION_TILE_SIZE) + x, (position.getY() * REGION_TILE_SIZE) + z);
     }
 
     public BlockState getBlockState(int x, int y, int z) {

@@ -107,7 +107,7 @@ public class CityTerrainGenerator {
                         float height = (lot != null && occupyingSchematic == null) ? lot.getYPosition() : heightMap.getHeight(blockX, blockZ);
 
                         // Use ground network height if we have one
-                        if (groundNetwork != null && lot == null) {
+                        if (groundNetwork != null) {
                             height = groundNetwork.getMinPosition().getY() - NetworkPiece.DEPTH;
                         }
 
