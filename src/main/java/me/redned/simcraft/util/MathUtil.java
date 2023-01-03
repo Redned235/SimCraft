@@ -1,61 +1,44 @@
 package me.redned.simcraft.util;
 
-import org.cloudburstmc.math.vector.Vector3d;
 import org.cloudburstmc.math.vector.Vector3i;
 
 public class MathUtil {
 
-    public static Vector3i rotateAroundYAxis(int x, int z, double axisX, double axisY, double axisZ, int angle) {
-        double dx = x - axisX;
-        double dz = z - axisZ;
-
-        Vector3d vec3d = rotateAroundY(dx, 0, dz, angle).add(axisX, axisY, axisZ);
-        return vec3d.ceil().toInt();
-    }
-
-    public static Vector3d rotateAroundY(double x, double y, double z, int angle) {
-        double cos = fastCos(angle);
-        double sin = fastSin(angle);
-
-        double xPos = cos * x + sin * z;
-        double zPos = -sin * x + cos * z;
-
-        return Vector3d.from(xPos, y, zPos);
-    }
-
-    private static double fastCos(int degrees) {
-        if (degrees % 90 != 0) {
-            return Math.cos(Math.toRadians(degrees));
+    public static Vector3i rotateAroundYAxis(int x, int z, double axisX, double axisY, double axisZ, int angle, boolean rotateCenter) {
+        if (angle == 0) {
+            return Vector3i.from(x, axisY, z + 1);
         }
 
-        degrees %= 360;
-        if (degrees < 0) {
-            degrees += 360;
+        if (angle == 90) {
+            double zPlane = rotateCenter ? axisX : Math.min(axisZ, axisX);
+            double xPlane = rotateCenter ? axisZ : Math.max(axisX, axisZ);
+
+            return Vector3i.from(z + (zPlane - axisZ) + 1, axisY, x + (xPlane - axisX));
         }
 
-        return switch (degrees) {
-            case 0 -> 1.0;
-            case 90, 270 -> 0.0;
-            case 180 -> -1.0;
-            default -> 0.0;
-        };
-    }
-
-    private static double fastSin(int degrees) {
-        if (degrees % 90 != 0) {
-            return Math.sin(Math.toRadians(degrees));
+        if (angle == 180) {
+            return Vector3i.from(-x + (axisX * 2) - 1, axisY, (-z + (axisZ * 2)) - 1);
         }
 
-        degrees %= 360;
-        if (degrees < 0) {
-            degrees += 360;
+        if (angle == 270) {
+            double zPlane = rotateCenter ? axisX :  Math.min(axisZ, axisX);
+            double xPlane = rotateCenter ? axisZ :  Math.max(axisX, axisZ);
+
+            if (zPlane == axisZ) {
+                zPlane *= 2;
+            } else {
+                zPlane = xPlane + 1;
+            }
+
+            if (xPlane == axisX) {
+                xPlane *= 2;
+            } else {
+                xPlane = zPlane + 1;
+            }
+
+            return Vector3i.from(-z + zPlane - 1, axisY, -x + xPlane - 1);
         }
 
-        return switch (degrees) {
-            case 0, 180 -> 0.0;
-            case 90 -> 1.0;
-            case 270 -> -1.0;
-            default -> 0.0;
-        };
+        throw new IllegalArgumentException("Unsupported rotation angle " + angle);
     }
 }

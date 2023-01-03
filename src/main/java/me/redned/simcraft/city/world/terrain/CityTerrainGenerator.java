@@ -94,7 +94,7 @@ public class CityTerrainGenerator {
                         Vector3i pos = fixOccupiedChunkOffset(Vector3i.from(blockX, height + initialPos.getY(), blockZ), occupyingSchematic.valueInt());
                         occupiedPositions.add(pos);
                         return pos.add(this.region.getMinPosition().getX(), 0, this.region.getMinPosition().getY()); // Add minimum positions
-                    }, false);
+                    }, false, false);
                 }
 
                 NetworkData groundNetwork = this.region.getNetworkBuilder().getGroundNetwork(chunkX, chunkZ);
@@ -184,9 +184,9 @@ public class CityTerrainGenerator {
 
     private static Vector3i fixOccupiedChunkOffset(Vector3i pos, int rotation) {
         return switch (rotation) {
-            case 90 -> pos.sub(0, 0, 1);
-            case 180 -> pos.sub(1, 0, 1);
-            case 270 -> pos.sub(1, 0, 0);
+            case 90 -> pos.sub(1, 0, 0);
+            // case 180 -> pos.sub(1, 0, 1);
+            // case 270 -> pos.sub(1, 0, 0);
             default -> pos;
         };
     }

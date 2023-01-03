@@ -51,12 +51,25 @@ public class BlockRotationUtil {
 
         directionDegree += degrees;
         directionDegree %= 360;
-        return switch (directionDegree) {
+        String dir = switch (directionDegree) {
             case 0 -> "north";
             case 90 -> "west";
             case 180 -> "south";
             case 270 ->  "east";
             default -> throw new IllegalArgumentException("Unsupported degree: " + directionDegree);
         };
+
+        // TODO: Figure out why the values below need to be flipped only on these axes
+        // These weird flips really should not be hardcoded but alas, here we are.
+        // I don't really understand the issue in all honesty, but this fixes it XD.
+        if (degrees == 90 || degrees == 270) {
+            if (dir.equals("north")) {
+                return "south";
+            } else if (dir.equals("south")) {
+                return "north";
+            }
+        }
+
+        return dir;
     }
 }

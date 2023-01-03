@@ -6,6 +6,7 @@ import me.redned.levelparser.Chunk;
 import me.redned.simcraft.city.City;
 import me.redned.simcraft.city.lot.LotData;
 import me.redned.simcraft.city.placeable.PlaceableData;
+import me.redned.simcraft.city.placeable.PropData;
 import me.redned.simcraft.city.schematic.CitySchematics;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
@@ -79,8 +80,8 @@ public class CityRegion {
                 continue;
             }
 
-            Vector3i minPos = placeable.getMinPosition().div(1, HEIGHT_DIVISOR, 1).ceil().add(0, 1, 0).toInt();
-            Vector3i maxPos = placeable.getMaxPosition().div(1, HEIGHT_DIVISOR, 1).ceil().add(0, 1, 0).toInt();
+            Vector3i minPos = placeable.getMinPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).toInt();
+            Vector3i maxPos = placeable.getMaxPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).toInt();
 
             Schematic schematic = CitySchematics.getSchematic(placeable.getIdentifier());
             if (schematic != null) {
@@ -103,7 +104,7 @@ public class CityRegion {
                 int offsetX = schematic.getMetadata().getInt("SCOffsetX", 0);
                 int offsetY = schematic.getMetadata().getInt("SCOffsetY", 0);
                 int offsetZ = schematic.getMetadata().getInt("SCOffsetZ", 0);
-                pasteAtOptimalPosition(schemPos, schematic, pasteAir, placeable.getRotation(), offsetX, offsetY, offsetZ);
+                pasteAtOptimalPosition(schemPos, placeable, schematic, pasteAir, placeable.getRotation(), offsetX, offsetY, offsetZ);
             } else {
                 for (int x = minPos.getX(); x < maxPos.getX(); x++) {
                     for (int y = minPos.getY(); y < maxPos.getY(); y++) {
@@ -153,11 +154,11 @@ public class CityRegion {
         this.level.getLevel().setBlockState(minPosition.getX() + x, y, minPosition.getY() + z, state);
     }
 
-    private void pasteAtOptimalPosition(Vector3i pos, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ) {
-        pasteAtOptimalPosition(pos, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, 0);
+    private void pasteAtOptimalPosition(Vector3i pos, PlaceableData placeable, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ) {
+        pasteAtOptimalPosition(pos, placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, 0);
     }
 
-    private void pasteAtOptimalPosition(Vector3i pos, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ, int iterations) {
+    private void pasteAtOptimalPosition(Vector3i pos, PlaceableData placeable, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ, int iterations) {
         if (iterations > 10) {
             System.err.println("Attempted to paste schematic below terrain!");
             return;
@@ -165,11 +166,11 @@ public class CityRegion {
 
         Vector3d centerPos = schematic.getCenterPosition();
         if (this.getBlockState(pos.getX() + (int) centerPos.getX(), pos.getY() - 1, pos.getZ() + (int) centerPos.getZ()).equals(BlockState.AIR)) {
-            pasteAtOptimalPosition(pos.sub(0, 1, 0), schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, iterations + 1);
+            pasteAtOptimalPosition(pos.sub(0, 1, 0), placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, iterations + 1);
             return;
         }
 
         Vector2i min = this.getMinPosition();
-        schematic.paste(this.level.getLevel(), pos.add(offsetX, offsetY, offsetZ).add(min.getX(), 0, min.getY()), rotation, null, pasteAir);
+        schematic.paste(this.level.getLevel(), pos.add(offsetX, offsetY, offsetZ).add(min.getX(), 0, min.getY()), rotation, null, pasteAir, placeable instanceof PropData);
     }
 }

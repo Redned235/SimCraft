@@ -51,6 +51,7 @@ public class PropData implements PlaceableData {
     @Override
     public int getRotation() {
         return switch (this.prop.getOrientation()) {
+            case 0 -> 180;
             case 1 -> 90;
             case 2 -> 0;
             case 3 -> 270;

@@ -35,6 +35,7 @@ public class Schematic {
     private final NbtMap metadata;
 
     private final Vector3d centerPosition;
+    private final Vector3d axisPosition;
 
     public static Schematic parse(NbtMap nbt) {
         Map<Integer, BlockState> palette = new HashMap<>();
@@ -112,6 +113,15 @@ public class Schematic {
             blockEntities.put(x, y, z, builder.build());
         }
 
+        NbtMap metadata = nbt.getCompound("Metadata");
+
+        Vector3d centerPos = Vector3d.from(width / 2.0D, height / 2.0D, length / 2.0D);
+        Vector3d axisPos = Vector3d.from(
+                metadata.getDouble("SCAxisX", centerPos.getX()),
+                metadata.getDouble("SCAxisY", centerPos.getY()),
+                metadata.getDouble("SCAxisZ", centerPos.getZ())
+        );
+
         return new Schematic(
                 nbt.getInt("Version"),
                 nbt.getInt("DataVersion"),
@@ -120,8 +130,9 @@ public class Schematic {
                 length,
                 blocks,
                 blockEntities,
-                nbt.getCompound("Metadata"),
-                Vector3d.from(width / 2.0D, height / 2.0D, length / 2.0D)
+                metadata,
+                centerPos,
+                axisPos
         );
     }
 
@@ -134,25 +145,25 @@ public class Schematic {
     }
 
     public void paste(Level level, Vector3i position, boolean pasteAir) {
-        this.paste(level, position, 0, pasteAir);
+        this.paste(level, position, 0, pasteAir, false);
     }
 
-    public void paste(Level level, Vector3i position, int rotation, boolean pasteAir) {
-        this.paste(level, position, rotation, null, pasteAir);
+    public void paste(Level level, Vector3i position, int rotation, boolean pasteAir, boolean rotateCenter) {
+        this.paste(level, position, rotation, null, pasteAir, rotateCenter);
     }
 
-    public void paste(Level level, Vector3i position, int rotation, BinaryOperator<Vector3i> positionOperator, boolean pasteAir) {
+    public void paste(Level level, Vector3i position, int rotation, BinaryOperator<Vector3i> positionOperator, boolean pasteAir, boolean rotateCenter) {
         if (rotation % 90 != 0) {
             throw new IllegalArgumentException("Angle used for rotation was not divisible by 90!");
         }
 
         pasteAir |= this.getMetadata().getBoolean("SCPasteAir", false);
 
-        Vector3d centerPos = this.getCenterPosition();
+        Vector3d axisPosition = this.getAxisPosition();
 
         boolean finalPasteAir = pasteAir;
         this.blocks.forEach((x, y, z, state) -> {
-            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, centerPos.getX(), y, centerPos.getZ(), rotation));
+            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, axisPosition.getX(), y, axisPosition.getZ(), rotation, rotateCenter));
             if (positionOperator != null) {
                 schemPos = positionOperator.apply(Vector3i.from(x, y, z), schemPos);
             }
@@ -165,7 +176,7 @@ public class Schematic {
         });
 
         this.blockEntities.forEach((x, y, z, blockEntity) -> {
-            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, centerPos.getX(), y, centerPos.getZ(), rotation));
+            Vector3i schemPos = position.add(MathUtil.rotateAroundYAxis(x, z, axisPosition.getX(), y, axisPosition.getZ(), rotation, rotateCenter));
             if (positionOperator != null) {
                 schemPos = positionOperator.apply(Vector3i.from(x, y, z), schemPos);
             }
