@@ -91,7 +91,7 @@ public class CityTerrainGenerator {
                         int blockZ = schemPos.getZ();
 
                         float height = heightMap.getData()[Math.max(0, blockZ - 1)][Math.max(0, blockX - 1)] / this.heightDivisor;
-                        Vector3i pos = fixOccupiedChunkOffset(Vector3i.from(blockX, height + initialPos.getY(), blockZ), occupyingSchematic.valueInt());
+                        Vector3i pos = Vector3i.from(blockX, height + initialPos.getY(), blockZ);
                         occupiedPositions.add(pos);
                         return pos.add(this.region.getMinPosition().getX(), 0, this.region.getMinPosition().getY()); // Add minimum positions
                     }, false, false);
@@ -180,14 +180,5 @@ public class CityTerrainGenerator {
 
     public int getHeight() {
         return MAX_HEIGHT / this.heightDivisor;
-    }
-
-    private static Vector3i fixOccupiedChunkOffset(Vector3i pos, int rotation) {
-        return switch (rotation) {
-            case 90 -> pos.sub(1, 0, 0);
-            // case 180 -> pos.sub(1, 0, 1);
-            // case 270 -> pos.sub(1, 0, 0);
-            default -> pos;
-        };
     }
 }
