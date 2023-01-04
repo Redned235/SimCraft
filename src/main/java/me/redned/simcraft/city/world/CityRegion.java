@@ -80,8 +80,8 @@ public class CityRegion {
                 continue;
             }
 
-            Vector3i minPos = placeable.getMinPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).toInt();
-            Vector3i maxPos = placeable.getMaxPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).toInt();
+            Vector3i minPos = placeable.getMinPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).round().toInt();
+            Vector3i maxPos = placeable.getMaxPosition().div(1, HEIGHT_DIVISOR, 1).add(0, 1, 0).round().toInt();
 
             Schematic schematic = CitySchematics.getSchematic(placeable.getIdentifier());
             if (schematic != null) {
