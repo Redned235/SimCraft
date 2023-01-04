@@ -61,19 +61,21 @@ public class CityNetworkBuilder {
                 piece.buildPiece(this, network, minPos);
             }
 
-            Vector3i maxPos = network.getMaxPosition().div(1, heightDivisor, 1).add(0, 1, 0).toInt();
-            Chunk chunk = this.region.getChunk(minPos.getX() >> 4, minPos.getZ() >> 4);
-            chunk.getBlockEntities().add(NbtMap.builder()
-                    .putString("id", "minecraft:sign")
-                    .putInt("x", minPos.getX() + this.region.getMinPosition().getX())
-                    .putInt("y", maxPos.getY())
-                    .putInt("z", minPos.getZ() + this.region.getMinPosition().getY())
-                    .putString("Text1", "{\"text\":\"" + network.getNetworkType() + "\"}")
-                    .putString("Text2", "{\"text\":\"" + network.getOrientation() + " (" + network.getRotation() + ")" + "\"}")
-                    .putString("Text3", "{\"text\":\"" + (network.hasEastConnectivity() || network.hasWestConnectivity()) + "\"}")
-                    .build());
+            if (this.region.isDebug()) {
+                Vector3i maxPos = network.getMaxPosition().div(1, heightDivisor, 1).add(0, 1, 0).toInt();
+                Chunk chunk = this.region.getChunk(minPos.getX() >> 4, minPos.getZ() >> 4);
+                chunk.getBlockEntities().add(NbtMap.builder()
+                        .putString("id", "minecraft:sign")
+                        .putInt("x", minPos.getX() + this.region.getMinPosition().getX())
+                        .putInt("y", maxPos.getY())
+                        .putInt("z", minPos.getZ() + this.region.getMinPosition().getY())
+                        .putString("Text1", "{\"text\":\"" + network.getNetworkType() + "\"}")
+                        .putString("Text2", "{\"text\":\"" + network.getOrientation() + " (" + network.getRotation() + ")" + "\"}")
+                        .putString("Text3", "{\"text\":\"" + (network.hasEastConnectivity() || network.hasWestConnectivity()) + "\"}")
+                        .build());
 
-            this.region.setBlockState(minPos.getX(), maxPos.getY(), minPos.getZ(), BlockState.of("minecraft:oak_sign"));
+                this.region.setBlockState(minPos.getX(), maxPos.getY(), minPos.getZ(), BlockState.of("minecraft:oak_sign"));
+            }
         }
     }
 
