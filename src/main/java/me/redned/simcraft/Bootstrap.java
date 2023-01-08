@@ -20,7 +20,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class Bootstrap {
     private static final OptionParser PARSER = new OptionParser();
@@ -111,14 +114,19 @@ public final class Bootstrap {
                 }
             }
 
-            missingPlaceables = missingPlaceables.stream().distinct().toList();
-            if (missingPlaceables.isEmpty()) {
+            Map<String, Long> missingPlaceableCounts = missingPlaceables.stream()
+                    .collect(Collectors.groupingBy(e -> e, LinkedHashMap::new, Collectors.counting()));
+
+            if (missingPlaceableCounts.isEmpty()) {
                 System.out.println("No missing schematics!");
             } else {
-                System.out.println(missingPlaceables.size() + " missing schematics:");
+                System.out.println(missingPlaceableCounts.size() + " missing schematics:");
             }
 
-            missingPlaceables.forEach(System.out::println);
+            missingPlaceableCounts.forEach((entry, l) -> {
+                System.out.println(entry + " x" + l);
+            });
+
             return;
         }
 

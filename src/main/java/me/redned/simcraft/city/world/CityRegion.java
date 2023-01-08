@@ -71,7 +71,7 @@ public class CityRegion {
         // Build placeables
         this.buildPlaceables(this.city.getFlora(), false);
         this.buildPlaceables(this.city.getProps(), false);
-        this.buildPlaceables(this.city.getBuildings(), true);
+        this.buildPlaceables(this.city.getBuildings(), false);
     }
 
     private void buildPlaceables(List<? extends PlaceableData> placeables, boolean pasteAir) {
@@ -104,18 +104,20 @@ public class CityRegion {
                 int offsetX = schematic.getMetadata().getInt("SCOffsetX", 0);
                 int offsetY = schematic.getMetadata().getInt("SCOffsetY", 0);
                 int offsetZ = schematic.getMetadata().getInt("SCOffsetZ", 0);
-                pasteAtOptimalPosition(schemPos, placeable, schematic, pasteAir, placeable.getRotation(), offsetX, offsetY, offsetZ);
-            } else {
-                for (int x = minPos.getX(); x < maxPos.getX(); x++) {
-                    for (int y = minPos.getY(); y < maxPos.getY(); y++) {
-                        for (int z = minPos.getZ(); z < maxPos.getZ(); z++) {
-                            this.setBlockState(x, y, z, BlockState.of("minecraft:scaffolding"));
-                        }
-                    }
-                }
+                this.pasteAtOptimalPosition(schemPos, placeable, schematic, pasteAir, placeable.getRotation(), offsetX, offsetY, offsetZ);
             }
 
             if (this.debug) {
+                if (schematic == null) {
+                    for (int x = minPos.getX(); x < maxPos.getX(); x++) {
+                        for (int y = minPos.getY(); y < maxPos.getY(); y++) {
+                            for (int z = minPos.getZ(); z < maxPos.getZ(); z++) {
+                                this.setBlockState(x, y, z, BlockState.of("minecraft:scaffolding"));
+                            }
+                        }
+                    }
+                }
+
                 Chunk chunk = this.getChunk(minPos.getX() >> 4, minPos.getZ() >> 4);
                 chunk.getBlockEntities().add(NbtMap.builder()
                         .putString("id", "minecraft:sign")
