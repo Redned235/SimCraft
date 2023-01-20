@@ -35,13 +35,12 @@ public class CityLevel {
                 0,
                 1024,
                 0,
-                true,
                 new LevelData(
                         new LevelData.LevelVersion(
                                 false,
                                 "main",
-                                3120,
-                                "1.19.2"
+                                3218,
+                                "1.19.3"
                         ),
                         "City Region",
                         1,
@@ -63,6 +62,8 @@ public class CityLevel {
                                                         .putBoolean("features", false)
                                                         .putString("biome", "minecraft:plains")
                                                         .putList("layers", NbtType.COMPOUND, NbtMap.builder()
+                                                                .putString("block", "minecraft:air")
+                                                                .putInt("height", 1)
                                                                 .build())
                                                         .build())
                                                 .putString("type", "minecraft:flat")

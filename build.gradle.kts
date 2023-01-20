@@ -49,8 +49,6 @@ tasks.withType<ShadowJar> {
 
     archiveFileName.set("${project.name}.jar")
     archiveClassifier.set("")
-
-    minimize()
 }
 
 tasks.jar {
