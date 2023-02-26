@@ -147,11 +147,19 @@ public class CityRegion {
     }
 
     public BlockState getBlockState(int x, int y, int z) {
+        if (y < this.level.getLevel().getMinHeight() || y > this.level.getLevel().getMaxHeight()) {
+            return BlockState.AIR;
+        }
+
         Vector2i minPosition = this.getMinPosition();
         return this.level.getLevel().getBlockState(minPosition.getX() + x, y, minPosition.getY() + z);
     }
 
     public void setBlockState(int x, int y, int z, BlockState state) {
+        if (y < this.level.getLevel().getMinHeight() || y > this.level.getLevel().getMaxHeight()) {
+            return;
+        }
+
         Vector2i minPosition = this.getMinPosition();
         this.level.getLevel().setBlockState(minPosition.getX() + x, y, minPosition.getY() + z, state);
     }
