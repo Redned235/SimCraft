@@ -1,19 +1,16 @@
 package me.redned.simcraft.city.world.network.piece;
 
 import me.redned.levelparser.BlockState;
-import me.redned.simcraft.city.lot.LotData;
 import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.util.collection.RandomizedList;
 import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
-import me.redned.simreader.sc4.type.LotZoneWealth;
+import me.redned.simreader.sc4.type.network.NetworkWealthTexture;
 import org.cloudburstmc.math.GenericMath;
 import org.cloudburstmc.math.vector.Vector3i;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 
 public class StreetNetworkPiece implements NetworkPiece {
     private static final RandomizedList<BlockState> OUTER_DIRT_STATES = new RandomizedList<>(
@@ -37,7 +34,8 @@ public class StreetNetworkPiece implements NetworkPiece {
             put(StreetDecoration.DIRT, (region, network, x, y, z) -> region.setBlockState(x, y, z, OUTER_DIRT_STATES.iterator().next()));
             put(StreetDecoration.SIDEWALK, (region, network, x, y, z) -> region.setBlockState(x, y, z, SIDEWALK_STATE));
             put(StreetDecoration.GRASS_SIDEWALK, (region, network, x, y, z) -> {
-                region.setBlockState(x, y, z, GRASS_STATE);
+                BlockState grassState = network.getWealthTexture() == NetworkWealthTexture.DIRT ? OUTER_DIRT_STATES.iterator().next() : GRASS_STATE;
+                region.setBlockState(x, y, z, grassState);
 
                 if ((network.hasWestConnectivity() || network.hasEastConnectivity()) && ((z & 15) == 0 || (z & 15) == 1 || (z & 15) == 14 || (z & 15) == 15)) {
                     region.setBlockState(x, y, z, SIDEWALK_STATE);
@@ -50,25 +48,25 @@ public class StreetNetworkPiece implements NetworkPiece {
                 // Fix corners
                 if (network.hasNorthConnectivity()) {
                     if (((x & 15) == 2 || (x & 15) == 3 || (x & 15) == 12 || (x & 15) == 13) && ((z & 15) == 0 || (z & 15) == 1)) {
-                        region.setBlockState(x, y, z, GRASS_STATE);
+                        region.setBlockState(x, y, z, grassState);
                     }
                 }
 
                 if (network.hasEastConnectivity()) {
                     if (((z & 15) == 2 || (z & 15) == 3 || (z & 15) == 12 || (z & 15) == 13) && ((x & 15) == 14 || (x & 15) == 15)) {
-                        region.setBlockState(x, y, z, GRASS_STATE);
+                        region.setBlockState(x, y, z, grassState);
                     }
                 }
 
                 if (network.hasSouthConnectivity()) {
                     if (((x & 15) == 2 || (x & 15) == 3 || (x & 15) == 12 || (x & 15) == 13) && ((z & 15) == 14 || (z & 15) == 15)) {
-                        region.setBlockState(x, y, z, GRASS_STATE);
+                        region.setBlockState(x, y, z, grassState);
                     }
                 }
 
                 if (network.hasWestConnectivity()) {
                     if (((z & 15) == 2 || (z & 15) == 3 || (z & 15) == 12 || (z & 15) == 13) && ((x & 15) == 0 || (x & 15) == 1)) {
-                        region.setBlockState(x, y, z, GRASS_STATE);
+                        region.setBlockState(x, y, z, grassState);
                     }
                 }
             });
@@ -84,8 +82,7 @@ public class StreetNetworkPiece implements NetworkPiece {
         int tileX = position.getX() >> 4;
         int tileZ = position.getZ() >> 4;
 
-        List<LotData> lots = getNearbyLots(region, tileX, tileZ);
-        StreetDecoration decoration = getStreetDecoration(lots);
+        StreetDecoration decoration = getStreetDecoration(network);
         StreetDecorationBuilder decorationBuilder = DECORATION_BUILDERS.get(decoration);
 
         int y = (network.getMinPosition().getFloorY() / builder.getTerrainGenerator().getHeightDivisor());
@@ -213,55 +210,32 @@ public class StreetNetworkPiece implements NetworkPiece {
         return height;
     }
 
-    private static List<LotData> getNearbyLots(CityRegion region, int tileX, int tileZ) {
-        List<LotData> lots = new ArrayList<>();
-
-        for (int x = -2; x <= 2; x++) {
-            for (int z = -2; z <= 2; z++) {
-                // Don't check on self
-                if (x == 0 && z == 0) {
-                    continue;
+    private static StreetDecoration getStreetDecoration(NetworkData network) {
+        switch (network.getBaseTexture()) {
+            case NONE -> {
+                return StreetDecoration.NONE;
+            }
+            case DIRT -> {
+                return StreetDecoration.DIRT;
+            }
+            case PAVEMENT_$, PAVEMENT_$$, PAVEMENT_$$$ -> {
+                NetworkWealthTexture wealthTexture = network.getWealthTexture();
+                if (wealthTexture == NetworkWealthTexture.GRASS_LOW_DENSITY_$
+                        || wealthTexture == NetworkWealthTexture.GRASS_LOW_DENSITY_$$
+                        || wealthTexture == NetworkWealthTexture.GRASS_LOW_DENSITY_$$$) {
+                    return StreetDecoration.GRASS_SIDEWALK;
                 }
 
-                LotData lot = region.getLot(tileX + x, tileZ + z);
-                if (lot != null) {
-                    lots.add(lot);
+                // Dirt is placed in place of the grass in the network builder
+                if (wealthTexture == NetworkWealthTexture.DIRT) {
+                    return StreetDecoration.GRASS_SIDEWALK;
                 }
+
+                return StreetDecoration.SIDEWALK;
             }
         }
 
-        return lots;
-    }
-
-    private static StreetDecoration getStreetDecoration(List<LotData> lots) {
-        StreetDecoration decoration = StreetDecoration.NONE;
-
-        int zoneWealthValue = 0;
-        for (LotData lot : lots) {
-            if (decoration == StreetDecoration.NONE) {
-                if (lot.isIndustrial()) {
-                    if (lot.getZoneWealth() == LotZoneWealth.$) {
-                        decoration = StreetDecoration.DIRT;
-                    } else {
-                        decoration = StreetDecoration.GRASS_SIDEWALK;
-                    }
-                }
-            }
-
-            if (!lot.isIndustrial()) {
-                decoration = StreetDecoration.GRASS_SIDEWALK;
-            }
-
-            if (!lot.isIndustrial() && (lot.getZoneWealth() == LotZoneWealth.$$) || lot.getZoneWealth() == LotZoneWealth.$$$) {
-                zoneWealthValue++;
-            }
-        }
-
-        if (zoneWealthValue >= 2) {
-            return StreetDecoration.SIDEWALK;
-        }
-        
-        return decoration == StreetDecoration.NONE ? StreetDecoration.DIRT : decoration; // TODO: Needs fixing, but dirt looks okay for now
+        return StreetDecoration.NONE;
     }
 
     private enum StreetDecoration {

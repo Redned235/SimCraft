@@ -1,6 +1,8 @@
 package me.redned.simcraft.city.network;
 
-import me.redned.simreader.sc4.type.NetworkType;
+import me.redned.simreader.sc4.type.network.NetworkBaseTexture;
+import me.redned.simreader.sc4.type.network.NetworkType;
+import me.redned.simreader.sc4.type.network.NetworkWealthTexture;
 import org.cloudburstmc.math.vector.Vector3f;
 
 public interface NetworkData {
@@ -32,4 +34,8 @@ public interface NetworkData {
     int getTextureId();
 
     byte getCrossingFlag();
+
+    NetworkWealthTexture getWealthTexture();
+
+    NetworkBaseTexture getBaseTexture();
 }

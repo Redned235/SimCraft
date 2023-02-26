@@ -11,7 +11,7 @@ import me.redned.simcraft.city.world.network.piece.RoadNetworkPiece;
 import me.redned.simcraft.city.world.network.piece.StreetNetworkPiece;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
 import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
-import me.redned.simreader.sc4.type.NetworkType;
+import me.redned.simreader.sc4.type.network.NetworkType;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 

@@ -3,8 +3,8 @@ package me.redned.simcraft.city.lot;
 import lombok.Getter;
 import lombok.ToString;
 import me.redned.simreader.sc4.type.Lot;
-import me.redned.simreader.sc4.type.LotZoneType;
-import me.redned.simreader.sc4.type.LotZoneWealth;
+import me.redned.simreader.sc4.type.lot.LotZoneType;
+import me.redned.simreader.sc4.type.lot.LotZoneWealth;
 import org.cloudburstmc.math.vector.Vector2i;
 
 @ToString

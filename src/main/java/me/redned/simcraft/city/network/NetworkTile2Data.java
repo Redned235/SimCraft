@@ -3,7 +3,9 @@ package me.redned.simcraft.city.network;
 import lombok.Getter;
 import lombok.ToString;
 import me.redned.simreader.sc4.type.NetworkTile2;
-import me.redned.simreader.sc4.type.NetworkType;
+import me.redned.simreader.sc4.type.network.NetworkBaseTexture;
+import me.redned.simreader.sc4.type.network.NetworkType;
+import me.redned.simreader.sc4.type.network.NetworkWealthTexture;
 import org.cloudburstmc.math.vector.Vector3f;
 
 @ToString
@@ -96,5 +98,15 @@ public class NetworkTile2Data implements NetworkData {
     @Override
     public byte getCrossingFlag() {
         return (byte) 0;
+    }
+
+    @Override
+    public NetworkWealthTexture getWealthTexture() {
+        return NetworkWealthTexture.DEFAULT;
+    }
+
+    @Override
+    public NetworkBaseTexture getBaseTexture() {
+        return NetworkBaseTexture.NONE;
     }
 }
