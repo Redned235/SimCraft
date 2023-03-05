@@ -7,5 +7,5 @@ import org.cloudburstmc.math.vector.Vector3i;
 public interface NetworkPiece {
     int DEPTH = 16;
 
-    void buildPiece(CityNetworkBuilder region, NetworkData network, Vector3i position);
+    void buildPiece(CityNetworkBuilder builder, NetworkData network, Vector3i position);
 }

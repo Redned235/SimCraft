@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,10 @@ public final class Bootstrap {
                     }
                 }
 
+                for (CityRegion region : simCraft.getLevel().getRegions()) {
+                    System.out.println("City \"" + region.getCity().getName() + "\" can be found at coordinates: " + region.getMinPosition());
+                }
+
                 for (FloraData flora : city.getFlora()) {
                     if (CitySchematics.getSchematic(flora.getIdentifier()) == null) {
                         missingPlaceables.add("Flora - " + flora.getIdentifier());
@@ -123,8 +128,13 @@ public final class Bootstrap {
                 System.out.println(missingPlaceableCounts.size() + " missing schematics:");
             }
 
-            missingPlaceableCounts.forEach((entry, l) -> {
-                System.out.println(entry + " x" + l);
+            List<Map.Entry<String, Long>> entries = missingPlaceableCounts.entrySet()
+                    .stream()
+                    .sorted(Comparator.<Map.Entry<String, Long>>comparingInt(e -> Math.toIntExact(e.getValue())).reversed())
+                    .toList();
+
+            entries.forEach(entry -> {
+                System.out.println(entry.getKey() + " x" + entry.getValue());
             });
 
             return;

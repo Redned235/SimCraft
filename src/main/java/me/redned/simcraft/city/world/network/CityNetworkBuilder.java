@@ -3,15 +3,19 @@ package me.redned.simcraft.city.world.network;
 import lombok.Getter;
 import me.redned.levelparser.BlockState;
 import me.redned.levelparser.Chunk;
+import me.redned.levelparser.Level;
 import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.network.NetworkTile1Data;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.piece.NetworkPiece;
+import me.redned.simcraft.city.world.network.piece.RailNetworkPiece;
 import me.redned.simcraft.city.world.network.piece.RoadNetworkPiece;
 import me.redned.simcraft.city.world.network.piece.StreetNetworkPiece;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
+import me.redned.simcraft.schematic.Schematic;
 import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
 import me.redned.simreader.sc4.type.network.NetworkType;
+import org.cloudburstmc.math.vector.Vector2i;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 @Getter
 public class CityNetworkBuilder {
@@ -26,6 +31,7 @@ public class CityNetworkBuilder {
         {
             put(NetworkType.STREET, new StreetNetworkPiece());
             put(NetworkType.ROAD, new RoadNetworkPiece());
+            put(NetworkType.RAIL, new RailNetworkPiece());
         }
     };
 
@@ -81,5 +87,20 @@ public class CityNetworkBuilder {
 
     public NetworkData getGroundNetwork(int tileX, int tileZ) {
         return this.groundLevelNetwork.get(tileX, tileZ);
+    }
+
+    public void pasteNetworkSchematic(Schematic schematic, NetworkData network, UnaryOperator<Vector3i> pastePositionOperator) {
+        int heightDivisor = this.terrainGenerator.getHeightDivisor();
+        Vector2i minPosition = this.region.getMinPosition();
+        schematic.paste(
+                this.region.getLevel().getLevel(),
+                pastePositionOperator.apply(network.getMinPosition()
+                        .add(minPosition.getX(), 0, minPosition.getY())
+                        .div(1, heightDivisor, 1)
+                        .toInt()),
+                network.getRotation(),
+                false,
+                false
+        );
     }
 }

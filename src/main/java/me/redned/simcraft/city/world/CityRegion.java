@@ -5,6 +5,7 @@ import me.redned.levelparser.BlockState;
 import me.redned.levelparser.Chunk;
 import me.redned.simcraft.city.City;
 import me.redned.simcraft.city.lot.LotData;
+import me.redned.simcraft.city.placeable.FloraData;
 import me.redned.simcraft.city.placeable.PlaceableData;
 import me.redned.simcraft.city.placeable.PropData;
 import me.redned.simcraft.city.schematic.CitySchematics;
@@ -112,7 +113,7 @@ public class CityRegion {
                     for (int x = minPos.getX(); x < maxPos.getX(); x++) {
                         for (int y = minPos.getY(); y < maxPos.getY(); y++) {
                             for (int z = minPos.getZ(); z < maxPos.getZ(); z++) {
-                                this.setBlockState(x, y, z, BlockState.of("minecraft:scaffolding"));
+                                this.setBlockState(x, y, z, BlockState.of("minecraft:glass"));
                             }
                         }
                     }
@@ -181,6 +182,6 @@ public class CityRegion {
         }
 
         Vector2i min = this.getMinPosition();
-        schematic.paste(this.level.getLevel(), pos.add(offsetX, offsetY, offsetZ).add(min.getX(), 0, min.getY()), rotation, null, pasteAir, placeable instanceof PropData);
+        schematic.paste(this.level.getLevel(), pos.add(offsetX, offsetY, offsetZ).add(min.getX(), 0, min.getY()), rotation, null, pasteAir, placeable instanceof PropData || placeable instanceof FloraData);
     }
 }
