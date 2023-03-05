@@ -176,7 +176,7 @@ public class CityRegion {
         }
 
         Vector3d centerPos = schematic.getCenterPosition();
-        if (this.getBlockState(pos.getX() + (int) centerPos.getX(), pos.getY() - 1, pos.getZ() + (int) centerPos.getZ()).equals(BlockState.AIR)) {
+        if (this.getBlockState(pos.getX() + (int) centerPos.getX() + offsetX, pos.getY() - 1, pos.getZ() + (int) centerPos.getZ() + offsetZ).equals(BlockState.AIR)) {
             pasteAtOptimalPosition(pos.sub(0, 1, 0), placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, iterations + 1);
             return;
         }

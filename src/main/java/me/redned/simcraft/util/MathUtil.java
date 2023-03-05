@@ -13,7 +13,7 @@ public class MathUtil {
             double zPlane = rotateCenter ? axisX : Math.min(axisZ, axisX);
             double xPlane = rotateCenter ? axisZ : Math.max(axisX, axisZ);
 
-            return Vector3i.from(z + (zPlane - axisZ) + ((axisX > axisZ) ? 1 : 0), axisY, x + (xPlane - axisX) + ((axisZ > axisX) ? 1 : 0));
+            return Vector3i.from(z + (zPlane - axisZ) + ((axisX > axisZ) ? 1 : 0), axisY, -x + (xPlane + axisX) - 1);
         }
 
         if (angle == 180) {
@@ -24,7 +24,7 @@ public class MathUtil {
             double zPlane = rotateCenter ? axisX : Math.min(axisZ, axisX);
             double xPlane = rotateCenter ? axisZ : Math.max(axisX, axisZ);
 
-            return Vector3i.from(-z + (zPlane + axisZ) - 1, axisY, -x + (xPlane + axisX) - 1);
+            return Vector3i.from(-z + (zPlane + axisZ) - 1, axisY, x + (xPlane - axisX) + ((axisZ > axisX) ? 1 : 0));
         }
 
         throw new IllegalArgumentException("Unsupported rotation angle " + angle);
