@@ -5,6 +5,7 @@ import me.redned.simcraft.city.network.NetworkData;
 import me.redned.simcraft.city.world.CityRegion;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.util.collection.TwoDimensionalPositionMap;
+import me.redned.simreader.sc4.type.network.NetworkType;
 import org.cloudburstmc.math.GenericMath;
 import org.cloudburstmc.math.vector.Vector3i;
 
@@ -12,6 +13,7 @@ public class RoadNetworkPiece implements NetworkPiece {
     private static final BlockState SIDEWALK_STATE = BlockState.of("minecraft:smooth_stone");
     private static final BlockState PAVEMENT_STATE = BlockState.of("minecraft:coal_block");
     private static final BlockState PAINT_STATE = BlockState.of("minecraft:yellow_concrete");
+    private static final BlockState RAIL_STATE = BlockState.of("minecraft:polished_andesite");
     private static final BlockState CROSSWALK_STATE = BlockState.of("minecraft:smooth_quartz");
 
     private static final int SIZE = 16;
@@ -29,6 +31,11 @@ public class RoadNetworkPiece implements NetworkPiece {
 
         for (int depth = -DEPTH; depth < 0; depth++) {
             int connections = 0;
+
+            boolean northRailConnectivity = false;
+            boolean eastRailConnectivity = false;
+            boolean southRailConnectivity = false;
+            boolean westRailConnectivity = false;
 
             boolean northConnectivity = false;
             boolean eastConnectivity = false;
@@ -49,6 +56,9 @@ public class RoadNetworkPiece implements NetworkPiece {
             // Build the north part of the road
             {
                 NetworkData connection = builder.getGroundNetwork(tileX, tileZ - 1);
+                northRailConnectivity = builder.hasNetwork(tileX, tileZ - 1) && builder.getGroundNetwork(tileX, tileZ - 1).getNetworkType() == NetworkType.RAIL;
+                northConnectivity = (network.hasNorthConnectivity() || (connection != null && connection.hasSouthConnectivity())) && !northRailConnectivity;
+
                 double height = getRaisedHeight(builder, position, connection);
                 for (int x = position.getX(); x < position.getX() + SIZE; x++) {
                     for (int z = position.getZ(); z < position.getZ() + OUTER_EDGE_SIZE; z++) {
@@ -56,7 +66,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                         int yOffset = GenericMath.floor(height - (((index + 1.0D) / OUTER_EDGE_SIZE) * height));
                         int yPos = y + yOffset + depth;
 
-                        if ((northConnectivity = (network.hasNorthConnectivity() || (connection != null && connection.hasSouthConnectivity()))) && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
+                        if (northConnectivity && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
                             yStorage.put(x, z, yPos);
                         } else {
@@ -69,6 +79,9 @@ public class RoadNetworkPiece implements NetworkPiece {
             // Build the east part of the road
             {
                 NetworkData connection = builder.getGroundNetwork(tileX + 1, tileZ);
+                eastRailConnectivity = builder.hasNetwork(tileX + 1, tileZ) && builder.getGroundNetwork(tileX + 1, tileZ).getNetworkType() == NetworkType.RAIL;
+                eastConnectivity = (network.hasEastConnectivity() || (connection != null && connection.hasWestConnectivity())) && !eastRailConnectivity;
+
                 double height = getRaisedHeight(builder, position, connection);
                 for (int x = position.getX() + (SIZE - OUTER_EDGE_SIZE); x < position.getX() + SIZE; x++) {
                     int index = x - (position.getX() + (SIZE - OUTER_EDGE_SIZE));
@@ -76,7 +89,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                     int yPos = y + yOffset + depth;
 
                     for (int z = position.getZ(); z < position.getZ() + SIZE; z++) {
-                        if ((eastConnectivity = (network.hasEastConnectivity() || (connection != null && connection.hasWestConnectivity()))) && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
+                        if (eastConnectivity && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
                             yStorage.put(x, z, yPos);
                         } else {
@@ -89,6 +102,9 @@ public class RoadNetworkPiece implements NetworkPiece {
             // Build the south part of the road
             {
                 NetworkData connection = builder.getGroundNetwork(tileX, tileZ + 1);
+                southRailConnectivity = builder.hasNetwork(tileX, tileZ + 1) && builder.getGroundNetwork(tileX, tileZ + 1).getNetworkType() == NetworkType.RAIL;
+                southConnectivity = (network.hasSouthConnectivity() || (connection != null && connection.hasNorthConnectivity())) && !southRailConnectivity;
+
                 double height = getRaisedHeight(builder, position, connection);
                 for (int x = position.getX(); x < position.getX() + SIZE; x++) {
                     for (int z = position.getZ() + (SIZE - OUTER_EDGE_SIZE); z < position.getZ() + SIZE; z++) {
@@ -96,7 +112,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                         int yOffset = GenericMath.floor(((index + 1.0D) / OUTER_EDGE_SIZE) * height);
                         int yPos = y + yOffset + depth;
 
-                        if ((southConnectivity = (network.hasSouthConnectivity() || (connection != null && connection.hasNorthConnectivity()))) && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
+                        if (southConnectivity && (x >= position.getX() + OUTER_EDGE_SIZE && x < position.getX() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
                             yStorage.put(x, z, yPos);
                         } else {
@@ -109,6 +125,9 @@ public class RoadNetworkPiece implements NetworkPiece {
             // Build the west part of the road
             {
                 NetworkData connection = builder.getGroundNetwork(tileX - 1, tileZ);
+                westRailConnectivity = builder.hasNetwork(tileX - 1, tileZ) && builder.getGroundNetwork(tileX - 1, tileZ).getNetworkType() == NetworkType.RAIL;
+                westConnectivity = (network.hasWestConnectivity() || (connection != null && connection.hasEastConnectivity())) && !westRailConnectivity;
+
                 double height = getRaisedHeight(builder, position, connection);
                 for (int x = position.getX(); x < position.getX() + OUTER_EDGE_SIZE; x++) {
                     int index = x - position.getX();
@@ -116,7 +135,7 @@ public class RoadNetworkPiece implements NetworkPiece {
                     int yPos = y + yOffset + depth;
 
                     for (int z = position.getZ(); z < position.getZ() + SIZE; z++) {
-                        if ((westConnectivity = (network.hasWestConnectivity() || (connection != null && connection.hasEastConnectivity()))) && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
+                        if (westConnectivity && (z >= position.getZ() + OUTER_EDGE_SIZE && z < position.getZ() + (SIZE - OUTER_EDGE_SIZE))) {
                             region.setBlockState(x, yPos, z, PAVEMENT_STATE);
                             yStorage.put(x, z, yPos);
                         } else {
@@ -151,6 +170,34 @@ public class RoadNetworkPiece implements NetworkPiece {
 
                     region.setBlockState(x, yStorage.get(x, line1), line1, PAINT_STATE);
                     region.setBlockState(x, yStorage.get(x, line2), line2, PAINT_STATE);
+                }
+            }
+
+            // Draw rail N/S lines
+            if (northRailConnectivity && southRailConnectivity) {
+                for (int z = position.getZ(); z < position.getZ() + SIZE; z++) {
+                    for (int i = 3; i <= 12; i++) {
+                        int x = position.getX() + i;
+                        if (i == 3 || i == 5 || i == 10 || i == 12) {
+                            region.setBlockState(x, yStorage.get(x, z), z, RAIL_STATE);
+                        } else {
+                            region.setBlockState(x, yStorage.get(x, z), z, PAVEMENT_STATE);
+                        }
+                    }
+                }
+            }
+
+            // Draw rail E/W lines
+            if (eastRailConnectivity && westRailConnectivity) {
+                for (int x = position.getX(); x < position.getX() + SIZE; x++) {
+                    for (int i = 3; i <= 12; i++) {
+                        int z = position.getZ() + i;
+                        if (i == 3 || i == 5 || i == 10 || i == 12) {
+                            region.setBlockState(x, yStorage.get(x, z), z, RAIL_STATE);
+                        } else {
+                            region.setBlockState(x, yStorage.get(x, z), z, PAVEMENT_STATE);
+                        }
+                    }
                 }
             }
 

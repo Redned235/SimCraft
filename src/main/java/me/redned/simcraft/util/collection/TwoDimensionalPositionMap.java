@@ -36,6 +36,10 @@ public class TwoDimensionalPositionMap<V> implements Map<Vector2i, V> {
         return false;
     }
 
+    public boolean containsKey(int x, int z) {
+        return this.backingMap.containsKey(serialize(x, z));
+    }
+
     @Override
     public boolean containsValue(Object value) {
         return this.backingMap.containsValue(value);

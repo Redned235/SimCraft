@@ -89,6 +89,10 @@ public class CityNetworkBuilder {
         return this.groundLevelNetwork.get(tileX, tileZ);
     }
 
+    public boolean hasNetwork(int tileX, int tileZ) {
+        return this.groundLevelNetwork.containsKey(tileX, tileZ);
+    }
+
     public void pasteNetworkSchematic(Schematic schematic, NetworkData network, UnaryOperator<Vector3i> pastePositionOperator) {
         int heightDivisor = this.terrainGenerator.getHeightDivisor();
         Vector2i minPosition = this.region.getMinPosition();

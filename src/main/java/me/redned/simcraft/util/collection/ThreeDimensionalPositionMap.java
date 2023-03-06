@@ -36,6 +36,10 @@ public class ThreeDimensionalPositionMap<V> implements Map<Vector3i, V> {
         return false;
     }
 
+    public boolean containsKey(int x, int y, int z) {
+        return this.backingMap.containsKey(serialize(x, y, z));
+    }
+
     @Override
     public boolean containsValue(Object value) {
         return this.backingMap.containsValue(value);

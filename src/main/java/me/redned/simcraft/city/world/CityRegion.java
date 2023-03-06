@@ -9,6 +9,7 @@ import me.redned.simcraft.city.placeable.FloraData;
 import me.redned.simcraft.city.placeable.PlaceableData;
 import me.redned.simcraft.city.placeable.PropData;
 import me.redned.simcraft.city.schematic.CitySchematics;
+import me.redned.simcraft.city.world.lot.CityLotBuilder;
 import me.redned.simcraft.city.world.network.CityNetworkBuilder;
 import me.redned.simcraft.city.world.terrain.CityTerrainGenerator;
 import me.redned.simcraft.schematic.Schematic;
@@ -30,6 +31,7 @@ public class CityRegion {
 
     private final CityTerrainGenerator terrainGenerator;
     private final CityNetworkBuilder networkBuilder;
+    private final CityLotBuilder lotBuilder;
 
     private final TwoDimensionalPositionMap<LotData> lots = new TwoDimensionalPositionMap<>();
 
@@ -43,6 +45,7 @@ public class CityRegion {
 
         this.terrainGenerator = new CityTerrainGenerator(this, HEIGHT_DIVISOR);
         this.networkBuilder = new CityNetworkBuilder(this, this.terrainGenerator);
+        this.lotBuilder = new CityLotBuilder(this);
 
         this.debug = debug;
 
@@ -68,6 +71,9 @@ public class CityRegion {
 
         // Build transportation networks
         this.networkBuilder.buildNetworks();
+
+        // Build lots
+        this.lotBuilder.buildLots();
 
         // Build placeables
         this.buildPlaceables(this.city.getFlora(), false);
@@ -136,6 +142,10 @@ public class CityRegion {
 
     public LotData getLot(int tileX, int tileZ) {
         return this.lots.get(tileX, tileZ);
+    }
+
+    public void buildLot(LotData lot) {
+        this.lotBuilder.buildLot(lot);
     }
 
     public Vector2i getTilePosition() {

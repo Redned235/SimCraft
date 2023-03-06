@@ -106,6 +106,9 @@ public class CityTerrainGenerator {
                         int blockZ = (chunkZ << 4) + z;
                         float height = (lot != null && occupyingSchematic == null) ? lot.getYPosition() : heightMap.getHeight(blockX, blockZ);
 
+                        // Update our heightmap (needed for lot retaining walls)
+                        heightMap.getData()[blockX][blockZ] = height;
+
                         // Use ground network height if we have one
                         if (groundNetwork != null) {
                             height = groundNetwork.getMinPosition().getY() - NetworkPiece.DEPTH;

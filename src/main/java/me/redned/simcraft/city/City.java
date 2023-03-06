@@ -19,7 +19,9 @@ import me.redned.simreader.sc4.type.Prop;
 import org.cloudburstmc.math.vector.Vector2i;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a city within SimCity.
@@ -50,9 +52,13 @@ public class City {
 
         this.regionView = saveFile.getRegionViewFile();
 
+        Map<Integer, BuildingData> buildingsByIId = new HashMap<>();
         if (saveFile.getBuildingFile() != null) {
             for (Building building : saveFile.getBuildingFile().getBuildings()) {
-                this.buildings.add(new BuildingData(building, exemplarFile));
+                BuildingData buildingData = new BuildingData(building, exemplarFile);
+                this.buildings.add(buildingData);
+
+                buildingsByIId.put(building.getInstanceId(), buildingData);
             }
         }
 
@@ -70,7 +76,7 @@ public class City {
 
         if (saveFile.getLotFile() != null) {
             for (Lot lot : saveFile.getLotFile().getLots()) {
-                this.lots.add(new LotData(lot));
+                this.lots.add(new LotData(lot, buildingsByIId.get(lot.getBuildingInstanceId()), exemplarFile));
             }
         }
 
