@@ -21,8 +21,8 @@ A program to convert SimCity 4 (Deluxe) cities into Minecraft worlds.
 ## Running the Program
 SimCity 4 must be installed for this to work, as SimCraft needs to access various game files.
 
-1. Download the jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
-2. Double-click the jar to open the UI.
+1. Download the SimCraft jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
+2. Once downloaded, double-click the jar to open the UI.
 3. Select the SimCity region directory, Minecraft world export directory and (if applicable) the SimCity install directory.
 4. Click "Export to Minecraft" and all cities in the specifeid region directory will be converted to a Minecraft world!
 
