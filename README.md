@@ -19,18 +19,28 @@ A program to convert SimCity 4 (Deluxe) cities into Minecraft worlds.
 - Bridges & Trains
 
 ## Running the Program
-At the moment, this can only be run through the command line. However, a GUI is likely to come at some point.
+SimCity 4 must be installed for this to work, as SimCraft needs to access various game files.
 
-Additionally, you must also have SimCity 4 installed for this to work, as this program needs to access various game files.
+1. Download the jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
+2. Double-click the jar to open the UI.
+3. Select the SimCity region directory, Minecraft world export directory and (if applicable) the SimCity install directory.
+4. Click "Export to Minecraft" and all cities in the specifeid region directory will be converted to a Minecraft world!
+
+<details>
+<summary>CLI Instructions</summary>
+<br>
+The command line interface allows for additional debugging capabilities that are useful for development.
 
 1. Download the jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
 2. Create a new directory and place the jar in it.
 3. Open up your command line and insert the following code:
     ```shell
-    java -jar SimCraft.jar -c <city directory> -g <game directory> -o <output>
+    java -jar SimCraft-cli.jar -c <city directory> -g <game directory> -o <output>
     ```
    **Note**: SimCraft will attempt to find the game directory automatically on Windows, so the `-g` option can be omitted.
 4. Once everything has completed, place the output directory inside your Minecraft `saves` file, and teleport to the coordinates the city was pasted at (it will print this in the console).
+
+</details>
 
 ## Contributing
 See the [Contributing](https://github.com/Redned235/SimCraft/blob/master/CONTRIBUTING.md) file for more information.

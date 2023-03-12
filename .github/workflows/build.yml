@@ -28,4 +28,5 @@ jobs:
           prerelease: true
           title: "Snapshot Build"
           files: |
-            build/libs/SimCraft.jar
+            gui/build/libs/SimCraft.jar
+            cli/build/libs/SimCraft-cli.jar
