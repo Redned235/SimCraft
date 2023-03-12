@@ -30,7 +30,7 @@ SimCity 4 must be installed for this to work, as SimCraft needs to access variou
 <summary>CLI Instructions</summary>
 <br>
 The command line interface allows for additional debugging capabilities that are useful for development.
-
+<br>
 1. Download the jar from the [latest release](https://github.com/Redned235/SimCraft/releases).
 2. Create a new directory and place the jar in it.
 3. Open up your command line and insert the following code:
