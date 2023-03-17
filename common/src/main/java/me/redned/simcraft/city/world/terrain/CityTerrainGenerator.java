@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class CityTerrainGenerator {
     private static final int MAX_HEIGHT = 1024;
-    private static final int SMOOTHING_PASSES = 50;
+    private static final int SMOOTHING_PASSES = 25;
 
     private static final int WATER_Y_LEVEL = 250;
     private static final int SAND_WATER_HEIGHT_LEVEL = 5;
@@ -97,7 +97,7 @@ public class CityTerrainGenerator {
                         int blockX = schemPos.getX();
                         int blockZ = schemPos.getZ();
 
-                        float height = heightMap.getData()[Math.max(0, blockZ - 1)][Math.max(0, blockX - 1)] / this.heightDivisor;
+                        float height = heightMap.getData()[blockZ][blockX] / this.heightDivisor;
                         Vector3i pos = Vector3i.from(blockX, height + initialPos.getY(), blockZ);
                         occupiedPositions.add(pos);
                         return pos.add(this.region.getMinPosition().getX(), 0, this.region.getMinPosition().getY()); // Add minimum positions
@@ -114,7 +114,7 @@ public class CityTerrainGenerator {
                         float height = (lot != null && occupyingSchematic == null) ? lot.getYPosition() : heightMap.getHeight(blockX, blockZ);
 
                         // Update our heightmap (needed for lot retaining walls)
-                        heightMap.getData()[blockX][blockZ] = height;
+                        heightMap.getData()[blockZ][blockX] = height;
 
                         // Use ground network height if we have one
                         if (groundNetwork != null) {

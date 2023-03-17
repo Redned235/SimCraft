@@ -11,10 +11,11 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class FileSelectionPanel extends JPanel {
 
-    public FileSelectionPanel(String panelName, String defaultFileLocation, Function<File, String> fileErrorTest, Consumer<File> fileConsumer) {
+    public FileSelectionPanel(String panelName, String defaultFileLocation, Function<File, String> fileErrorTest, Supplier<File> fileSupplier, Consumer<File> fileConsumer) {
         this.setLayout(new BorderLayout());
 
         JPanel labelPanel = new JPanel();
@@ -55,6 +56,12 @@ public class FileSelectionPanel extends JPanel {
 
         selectionPanel.add(textField);
 
+        File currentFile = fileSupplier.get();
+        if (currentFile != null) {
+            textField.setText(currentFile.toString());
+            fileConsumer.accept(currentFile);
+        }
+
         JButton openButton = new JButton("Open");
         openButton.addMouseListener(new MouseListener() {
 
@@ -83,6 +90,7 @@ public class FileSelectionPanel extends JPanel {
                 if (!result.isDirectory()) {
                     JOptionPane.showMessageDialog(new JFrame(), "Your selection must be a directory!", "Error!",
                             JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 String error = fileErrorTest.apply(result);

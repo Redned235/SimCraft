@@ -13,7 +13,7 @@ public class BuildCitiesPanel extends JPanel {
     public BuildCitiesPanel(SimCraftGUI.CityBuilderContext context, Runnable cityBuilderRunnable) {
         JButton button = new JButton();
         button.setPreferredSize(new Dimension(500, 50));
-        button.setText("Export to Minecraft");
+        button.setText("Export to Minecraft World");
         this.add(button);
 
         button.addMouseListener(new MouseListener() {

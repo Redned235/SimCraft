@@ -50,6 +50,10 @@ public class CityLotBuilder {
 
                 for (int x = 0; x < WIDTH; x++) {
                     for (int z = 0; z < WIDTH; z++) {
+                        if (x != 0 && z != 0 && x != (WIDTH - 1) && z != (WIDTH - 1)) {
+                            continue;
+                        }
+
                         int xPos = (chunkX << 4) + x;
                         int zPos = (chunkZ << 4) + z;
                         int y = this.region.getTerrainGenerator().getHeight(xPos, zPos);

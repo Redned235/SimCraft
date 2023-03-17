@@ -4,7 +4,7 @@ dependencies {
     api("com.github.Redned235.LevelParser:anvil:master-SNAPSHOT")
     api("com.github.Redned235:SimReader:master-SNAPSHOT")
 
-    implementation("org.json:json:20220924")
+    api("org.json:json:20220924")
     api("org.cloudburstmc.math:immutable:2.0")
 
     val fastutilVersion = "8.5.3"

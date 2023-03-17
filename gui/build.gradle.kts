@@ -2,10 +2,13 @@ description = "simcraft-gui"
 
 plugins {
     id("application")
+    id("org.openjfx.javafxplugin") version "0.0.8"
 }
 
 dependencies {
     api(project(":common"))
+
+    implementation("com.formdev:flatlaf:3.0")
 }
 
 application {
