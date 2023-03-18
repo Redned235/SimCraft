@@ -36,9 +36,13 @@ public class CityProgressDialog extends JDialog {
             this.worker.cancel(true);
         }
 
-        this.removeAll();
+        this.getContentPane().removeAll();
+        this.repaint();
+
         this.setLayout(new FlowLayout());
         this.add(new JLabel("Saving world..."));
+
+        this.revalidate();
     }
 
     private class BackgroundWorker extends SwingWorker<Void, Void> {

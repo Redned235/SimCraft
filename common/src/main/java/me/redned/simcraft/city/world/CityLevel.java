@@ -11,6 +11,7 @@ import org.cloudburstmc.nbt.NbtType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class CityLevel {
@@ -77,7 +78,8 @@ public class CityLevel {
                                         .putString("type", "minecraft:overworld")
                                         .build())
                         )
-                )
+                ),
+                new ConcurrentHashMap<>()
         );
     }
 

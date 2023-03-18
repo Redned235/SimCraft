@@ -27,8 +27,8 @@ public class TwoDimensionalPositionMap<V> implements Map<Vector2i, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        if (key instanceof Long) {
-            return this.backingMap.containsKey(key);
+        if (key instanceof Long l) {
+            return this.backingMap.containsKey(l.longValue());
         } else if (key instanceof Vector2i vec) {
             return this.backingMap.containsKey(serialize(vec.getX(), vec.getY()));
         }
@@ -47,8 +47,8 @@ public class TwoDimensionalPositionMap<V> implements Map<Vector2i, V> {
 
     @Override
     public V get(Object key) {
-        if (key instanceof Long) {
-            return this.backingMap.get(key);
+        if (key instanceof Long l) {
+            return this.backingMap.get(l.longValue());
         } else if (key instanceof Vector2i vec) {
             return this.backingMap.get(serialize(vec.getX(), vec.getY()));
         }
@@ -71,8 +71,8 @@ public class TwoDimensionalPositionMap<V> implements Map<Vector2i, V> {
 
     @Override
     public V remove(Object key) {
-        if (key instanceof Long) {
-            this.backingMap.remove(key);
+        if (key instanceof Long l) {
+            this.backingMap.remove(l.longValue());
         } else if (key instanceof Vector2i vec) {
             this.backingMap.remove(serialize(vec.getX(), vec.getY()));
         }

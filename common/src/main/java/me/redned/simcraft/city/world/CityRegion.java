@@ -79,7 +79,7 @@ public class CityRegion {
         // Build placeables
         this.buildPlaceables(buildState, SimCraft.BuildState.FLORA, this.city.getFlora(), false);
         this.buildPlaceables(buildState, SimCraft.BuildState.PROPS, this.city.getProps(), false);
-        this.buildPlaceables(buildState, SimCraft.BuildState.BUILDINGS, this.city.getBuildings(), false);
+        this.buildPlaceables(buildState, SimCraft.BuildState.BUILDINGS, this.city.getBuildings(), true);
     }
 
     private void buildPlaceables(SimCraft.RegionBuildState buildState, SimCraft.BuildState state, List<? extends PlaceableData> placeables, boolean pasteAir) {
@@ -184,7 +184,7 @@ public class CityRegion {
     }
 
     private void pasteAtOptimalPosition(Vector3i pos, PlaceableData placeable, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ) {
-        pasteAtOptimalPosition(pos, placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, 0);
+        this.pasteAtOptimalPosition(pos, placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, 0);
     }
 
     private void pasteAtOptimalPosition(Vector3i pos, PlaceableData placeable, Schematic schematic, boolean pasteAir, int rotation, int offsetX, int offsetY, int offsetZ, int iterations) {
@@ -194,8 +194,14 @@ public class CityRegion {
         }
 
         Vector3d centerPos = schematic.getCenterPosition();
-        if (this.getBlockState(pos.getX() + (int) centerPos.getX() + offsetX, pos.getY() - 1, pos.getZ() + (int) centerPos.getZ() + offsetZ).equals(BlockState.AIR)) {
-            pasteAtOptimalPosition(pos.sub(0, 1, 0), placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, iterations + 1);
+        int height = this.terrainGenerator.getHeight(pos.getX() + (int) centerPos.getX() + offsetX, pos.getZ() + (int) centerPos.getZ() + offsetZ);
+        boolean hasNetwork = this.networkBuilder.hasNetwork(pos.getX() >> 4, pos.getZ() >> 4);
+        if (!hasNetwork && (height + 1 < pos.getY() || height + 1 > pos.getY())) {
+            pos = Vector3i.from(pos.getX(), height + 1, pos.getZ());
+        }
+
+        if (BlockState.AIR.equals(this.getBlockState(pos.getX() + (int) centerPos.getX() + offsetX, pos.getY() - 1, pos.getZ() + (int) centerPos.getZ() + offsetZ))) {
+            this.pasteAtOptimalPosition(pos.sub(0, 1, 0), placeable, schematic, pasteAir, rotation, offsetX, offsetY, offsetZ, iterations + 1);
             return;
         }
 

@@ -143,6 +143,8 @@ public class SimCraftGUI {
 
             JOptionPane.showMessageDialog(frame, "Cities have completed exporting to a Minecraft world!\n" + builder, "Done!",
                     JOptionPane.INFORMATION_MESSAGE);
+
+            System.exit(0);
         } catch (Exception ex) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);

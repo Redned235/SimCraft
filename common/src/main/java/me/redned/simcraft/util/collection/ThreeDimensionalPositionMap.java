@@ -27,8 +27,8 @@ public class ThreeDimensionalPositionMap<V> implements Map<Vector3i, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        if (key instanceof Long) {
-            return this.backingMap.containsKey(key);
+        if (key instanceof Long l) {
+            return this.backingMap.containsKey(l.longValue());
         } else if (key instanceof Vector3i vec) {
             return this.backingMap.containsKey(serialize(vec.getX(), vec.getY(), vec.getZ()));
         }
@@ -47,8 +47,8 @@ public class ThreeDimensionalPositionMap<V> implements Map<Vector3i, V> {
 
     @Override
     public V get(Object key) {
-        if (key instanceof Long) {
-            return this.backingMap.get(key);
+        if (key instanceof Long l) {
+            return this.backingMap.get(l.longValue());
         } else if (key instanceof Vector3i vec) {
             return this.backingMap.get(serialize(vec.getX(), vec.getY(), vec.getZ()));
         }
@@ -71,8 +71,8 @@ public class ThreeDimensionalPositionMap<V> implements Map<Vector3i, V> {
 
     @Override
     public V remove(Object key) {
-        if (key instanceof Long) {
-            this.backingMap.remove(key);
+        if (key instanceof Long l) {
+            this.backingMap.remove(l.longValue());
         } else if (key instanceof Vector3i vec) {
             this.backingMap.remove(serialize(vec.getX(), vec.getY(), vec.getZ()));
         }
@@ -164,15 +164,15 @@ public class ThreeDimensionalPositionMap<V> implements Map<Vector3i, V> {
         return (((long) x & 0x03FFFFFFL) << 38) | (((long) y & 0xFFFL)) | (((long) z & 0x03FFFFFFL) << 12);
     }
 
-    public static int getX(final long serialized) {
+    private static int getX(final long serialized) {
         return (int) (serialized >> 38);
     }
 
-    public static int getY(final long serialized) {
+    private static int getY(final long serialized) {
         return (int) ((serialized << 52) >> 52);
     }
 
-    public static int getZ(final long serialized) {
+    private static int getZ(final long serialized) {
         return (int) ((serialized << 26) >> 38);
     }
 }
