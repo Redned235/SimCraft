@@ -74,22 +74,26 @@ public class NetworkTile1Data implements NetworkData {
 
     @Override
     public boolean hasNorthConnectivity() {
-        return this.networkTile.getConnectionNorth() == 0x02;
+        byte connection = this.networkTile.getConnectionNorth();
+        return connection == 0x01 || connection == 0x02 || connection == 0x03;
     }
 
     @Override
     public boolean hasEastConnectivity() {
-        return this.networkTile.getConnectionEast() == 0x02;
+        byte connection = this.networkTile.getConnectionEast();
+        return connection == 0x01 || connection == 0x02 || connection == 0x03;
     }
 
     @Override
     public boolean hasSouthConnectivity() {
-        return this.networkTile.getConnectionSouth() == 0x02;
+        byte connection = this.networkTile.getConnectionSouth();
+        return connection == 0x01 || connection == 0x02 || connection == 0x03;
     }
 
     @Override
     public boolean hasWestConnectivity() {
-        return this.networkTile.getConnectionWest() == 0x02;
+        byte connection = this.networkTile.getConnectionWest();
+        return connection == 0x01 || connection == 0x02 || connection == 0x03;
     }
 
     @Override

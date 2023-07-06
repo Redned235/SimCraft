@@ -95,7 +95,8 @@ public final class Bootstrap {
         SimCraft simCraft = new SimCraft(citiesDir, exemplarFile, outputDir, debug);
         if (optionSet.has(PRINT_MISSING_SPEC)) {
             List<String> missingPlaceables = new ArrayList<>();
-            for (City city : simCraft.getCities()) {
+            for (CityRegion region : simCraft.getLevel().getRegions()) {
+                City city = region.getCity();
                 for (BuildingData building : city.getBuildings()) {
                     if (CitySchematics.getSchematic(building.getIdentifier()) == null) {
                         missingPlaceables.add("Building - " + building.getIdentifier());
@@ -108,15 +109,13 @@ public final class Bootstrap {
                     }
                 }
 
-                for (CityRegion region : simCraft.getLevel().getRegions()) {
-                    System.out.println("City \"" + region.getCity().getName() + "\" can be found at coordinates: " + region.getMinPosition());
-                }
-
                 for (FloraData flora : city.getFlora()) {
                     if (CitySchematics.getSchematic(flora.getIdentifier()) == null) {
                         missingPlaceables.add("Flora - " + flora.getIdentifier());
                     }
                 }
+
+                System.out.println("City \"" + region.getCity().getName() + "\" can be found at coordinates: " + region.getMinPosition());
             }
 
             Map<String, Long> missingPlaceableCounts = missingPlaceables.stream()

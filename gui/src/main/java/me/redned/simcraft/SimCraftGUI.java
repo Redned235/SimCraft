@@ -68,11 +68,9 @@ public class SimCraftGUI {
         backgroundPanel.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight() / 3));
         frame.add(backgroundPanel, BorderLayout.PAGE_START);
 
-        if (OSColorSchemeDetector.isMacOsDarkMode()) {
+        if (OSColorSchemeDetector.isDarkMode()) {
             UIManager.setLookAndFeel(new FlatMacDarkLaf());
             SwingUtilities.updateComponentTreeUI(frame);
-        } else if (OSColorSchemeDetector.isWindowsDarkMode()) {
-            UIManager.setLookAndFeel(new FlatDarkLaf());
         } else {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
